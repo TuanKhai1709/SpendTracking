@@ -78,9 +78,9 @@ const translations = {
 
     // Categories - Income
     catSalary: 'Salary',
-    catFreelance: 'Freelance',
+    catBonus: 'Bonus',
+    catTip: 'Tip',
     catInvestment: 'Investment',
-    catGift: 'Gift',
   },
   vi: {
     // Nav
@@ -157,9 +157,9 @@ const translations = {
 
     // Categories - Income
     catSalary: 'Lương',
-    catFreelance: 'Freelance',
+    catBonus: 'Thưởng',
+    catTip: 'Tiền tip',
     catInvestment: 'Đầu tư',
-    catGift: 'Quà tặng',
   },
 };
 
@@ -177,9 +177,9 @@ const EXPENSE_CATEGORIES_MAP = {
 
 const INCOME_CATEGORIES_MAP = {
   Salary: 'catSalary',
-  Freelance: 'catFreelance',
+  Bonus: 'catBonus',
+  Tip: 'catTip',
   Investment: 'catInvestment',
-  Gift: 'catGift',
   Other: 'catOther',
 };
 
