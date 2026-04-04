@@ -9,14 +9,14 @@ export default function Income() {
   const { user } = useAuth();
   const { t, formatMoney, translateCategory } = useLang();
   const [incomeList, setIncomeList] = useState([]);
-  const [filter, setFilter] = useState('recent');
-  const [filterDate, setFilterDate] = useState('');
+  const [filterMonth, setFilterMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [filterDay, setFilterDay] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
   useEffect(() => {
     if (user) fetchIncome();
-  }, [user, filter, filterDate]);
+  }, [user, filterMonth, filterDay]);
 
   const getColRef = () => collection(db, 'users', user.uid, 'income');
 
@@ -26,12 +26,11 @@ export default function Income() {
       const snap = await getDocs(q);
       let items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
-      if (filter === 'day' && filterDate) {
-        items = items.filter((e) => e.date === filterDate);
-      } else if (filter === 'month' && filterDate) {
-        items = items.filter((e) => e.date.slice(0, 7) === filterDate);
-      } else {
-        items = items.slice(0, 10);
+      if (filterMonth) {
+        items = items.filter((e) => e.date.slice(0, 7) === filterMonth);
+      }
+      if (filterDay) {
+        items = items.filter((e) => e.date === filterDay);
       }
       setIncomeList(items);
     } catch (err) {
@@ -75,47 +74,29 @@ export default function Income() {
     }
   };
 
-  const handleFilterChange = (value) => {
-    setFilter(value);
-    if (value === 'recent') {
-      setFilterDate('');
-    } else if (value === 'day') {
-      setFilterDate(new Date().toISOString().split('T')[0]);
-    } else if (value === 'month') {
-      setFilterDate(new Date().toISOString().slice(0, 7));
-    }
-  };
-
   return (
     <div className="page">
       <h2 className="page-title">{t('income')}</h2>
 
       <div className="filter-bar">
-        <select
-          value={filter}
-          onChange={(e) => handleFilterChange(e.target.value)}
-          className="filter-select"
-        >
-          <option value="recent">{t('recent10')}</option>
-          <option value="day">{t('byDay')}</option>
-          <option value="month">{t('byMonth')}</option>
-        </select>
-        {filter === 'day' && (
-          <input
-            type="date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            className="filter-input"
-          />
-        )}
-        {filter === 'month' && (
+        <div className="filter-group">
+          <label className="filter-label">{t('month')}</label>
           <input
             type="month"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
+            value={filterMonth}
+            onChange={(e) => { setFilterMonth(e.target.value); setFilterDay(''); }}
             className="filter-input"
           />
-        )}
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">{t('day')}</label>
+          <input
+            type="date"
+            value={filterDay}
+            onChange={(e) => setFilterDay(e.target.value)}
+            className="filter-input"
+          />
+        </div>
       </div>
 
       <div className="transaction-list">

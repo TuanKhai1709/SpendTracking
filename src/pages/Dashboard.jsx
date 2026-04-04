@@ -23,10 +23,31 @@ export default function Dashboard() {
   const [incomeSummary, setIncomeSummary] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
+  const [period, setPeriod] = useState('month');
+  const [periodValue, setPeriodValue] = useState(() => new Date().toISOString().slice(0, 7));
+
+  const handlePeriodChange = (newPeriod) => {
+    setPeriod(newPeriod);
+    const now = new Date();
+    if (newPeriod === 'day') {
+      setPeriodValue(now.toISOString().split('T')[0]);
+    } else if (newPeriod === 'month') {
+      setPeriodValue(now.toISOString().slice(0, 7));
+    } else if (newPeriod === 'year') {
+      setPeriodValue(String(now.getFullYear()));
+    }
+  };
 
   useEffect(() => {
     if (user) fetchData();
-  }, [user]);
+  }, [user, period, periodValue]);
+
+  const matchesPeriod = (dateStr) => {
+    if (period === 'day') return dateStr === periodValue;
+    if (period === 'month') return dateStr.slice(0, 7) === periodValue;
+    if (period === 'year') return dateStr.slice(0, 4) === periodValue;
+    return true;
+  };
 
   const fetchData = async () => {
     try {
@@ -37,16 +58,20 @@ export default function Dashboard() {
       let expTotal = 0;
       expSnap.forEach((doc) => {
         const d = doc.data();
-        expByCategory[d.category] = (expByCategory[d.category] || 0) + d.amount;
-        expTotal += d.amount;
+        if (matchesPeriod(d.date)) {
+          expByCategory[d.category] = (expByCategory[d.category] || 0) + d.amount;
+          expTotal += d.amount;
+        }
       });
 
       const incByCategory = {};
       let incTotal = 0;
       incSnap.forEach((doc) => {
         const d = doc.data();
-        incByCategory[d.category] = (incByCategory[d.category] || 0) + d.amount;
-        incTotal += d.amount;
+        if (matchesPeriod(d.date)) {
+          incByCategory[d.category] = (incByCategory[d.category] || 0) + d.amount;
+          incTotal += d.amount;
+        }
       });
 
       setExpenseSummary(Object.entries(expByCategory).map(([category, total]) => ({ category, total })));
@@ -59,6 +84,10 @@ export default function Dashboard() {
   };
 
   const balance = totalIncome - totalExpense;
+
+  // Generate year options (current year and 5 years back)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
 
   const chartData = {
     labels: [t('income'), t('expenses')],
@@ -99,6 +128,45 @@ export default function Dashboard() {
   return (
     <div className="page">
       <h2 className="page-title">{t('dashboard')}</h2>
+
+      <div className="filter-bar">
+        <select
+          value={period}
+          onChange={(e) => handlePeriodChange(e.target.value)}
+          className="filter-select"
+        >
+          <option value="day">{t('byDay')}</option>
+          <option value="month">{t('byMonth')}</option>
+          <option value="year">{t('byYear')}</option>
+        </select>
+        {period === 'day' && (
+          <input
+            type="date"
+            value={periodValue}
+            onChange={(e) => setPeriodValue(e.target.value)}
+            className="filter-input"
+          />
+        )}
+        {period === 'month' && (
+          <input
+            type="month"
+            value={periodValue}
+            onChange={(e) => setPeriodValue(e.target.value)}
+            className="filter-input"
+          />
+        )}
+        {period === 'year' && (
+          <select
+            value={periodValue}
+            onChange={(e) => setPeriodValue(e.target.value)}
+            className="filter-select"
+          >
+            {yearOptions.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        )}
+      </div>
 
       <div className="chart-container">
         <Bar data={chartData} options={chartOptions} />
