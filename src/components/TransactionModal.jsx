@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useLang } from '../context/LangContext';
 
 const EXPENSE_CATEGORIES = ['Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Education', 'Other'];
 const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Investment', 'Gift', 'Other'];
 
 export default function TransactionModal({ type, transaction, onSave, onClose, onDelete }) {
+  const { t, translateCategory, toUSD, fromUSD, currencySymbol } = useLang();
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
   const [form, setForm] = useState({
     title: '',
@@ -18,7 +20,7 @@ export default function TransactionModal({ type, transaction, onSave, onClose, o
       setForm({
         title: transaction.title,
         category: transaction.category,
-        amount: String(transaction.amount),
+        amount: String(fromUSD(transaction.amount)),
         date: transaction.date,
       });
     }
@@ -28,44 +30,46 @@ export default function TransactionModal({ type, transaction, onSave, onClose, o
     e.preventDefault();
     setSaving(true);
     try {
-      await onSave({ ...form, amount: parseFloat(form.amount) });
+      await onSave({ ...form, amount: toUSD(parseFloat(form.amount)) });
     } finally {
       setSaving(false);
     }
   };
 
+  const typeLabel = type === 'expense' ? t('expense') : t('income');
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>{transaction ? 'Edit' : 'New'} {type === 'expense' ? 'Expense' : 'Income'}</h3>
+          <h3>{transaction ? t('edit') : t('new')} {typeLabel}</h3>
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
-            <label>Title</label>
+            <label>{t('title')}</label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               required
-              placeholder="Enter title"
+              placeholder={t('enterTitle')}
               maxLength={100}
             />
           </div>
           <div className="form-group">
-            <label>Category</label>
+            <label>{t('category')}</label>
             <select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
             >
               {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>{translateCategory(c)}</option>
               ))}
             </select>
           </div>
           <div className="form-group">
-            <label>Amount</label>
+            <label>{t('amount')} ({currencySymbol})</label>
             <input
               type="number"
               step="0.01"
@@ -77,7 +81,7 @@ export default function TransactionModal({ type, transaction, onSave, onClose, o
             />
           </div>
           <div className="form-group">
-            <label>Date</label>
+            <label>{t('date')}</label>
             <input
               type="date"
               value={form.date}
@@ -92,11 +96,11 @@ export default function TransactionModal({ type, transaction, onSave, onClose, o
                 className="btn btn-danger"
                 onClick={() => onDelete(transaction.id)}
               >
-                Delete
+                {t('delete')}
               </button>
             )}
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving...' : transaction ? 'Update' : 'Add'}
+              {saving ? t('saving') : transaction ? t('update') : t('add')}
             </button>
           </div>
         </form>

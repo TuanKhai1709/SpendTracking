@@ -12,11 +12,13 @@ import { Bar } from 'react-chartjs-2';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { t, formatMoney, translateCategory, lang, currencySymbol } = useLang();
   const [expenseSummary, setExpenseSummary] = useState([]);
   const [incomeSummary, setIncomeSummary] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
@@ -59,7 +61,7 @@ export default function Dashboard() {
   const balance = totalIncome - totalExpense;
 
   const chartData = {
-    labels: ['Income', 'Expenses'],
+    labels: [t('income'), t('expenses')],
     datasets: [
       {
         data: [totalIncome, totalExpense],
@@ -77,7 +79,7 @@ export default function Dashboard() {
       legend: { display: false },
       title: {
         display: true,
-        text: 'Income vs Expenses',
+        text: t('incomeVsExpenses'),
         font: { size: 16, weight: '600' },
         color: '#1A1A2E',
       },
@@ -85,7 +87,7 @@ export default function Dashboard() {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { callback: (v) => '$' + v.toLocaleString() },
+        ticks: { callback: (v) => formatMoney(v) },
         grid: { color: '#F0F2F5' },
       },
       x: {
@@ -96,7 +98,7 @@ export default function Dashboard() {
 
   return (
     <div className="page">
-      <h2 className="page-title">Dashboard</h2>
+      <h2 className="page-title">{t('dashboard')}</h2>
 
       <div className="chart-container">
         <Bar data={chartData} options={chartOptions} />
@@ -108,47 +110,47 @@ export default function Dashboard() {
           background: balance >= 0 ? 'var(--success-light)' : 'var(--danger-light)',
         }}
       >
-        <span className="balance-label">Total Balance</span>
+        <span className="balance-label">{t('totalBalance')}</span>
         <span className={`balance-amount ${balance >= 0 ? 'positive' : 'negative'}`}>
-          {balance >= 0 ? '+' : ''}${Math.abs(balance).toFixed(2)}
+          {balance >= 0 ? '+' : '-'}{formatMoney(Math.abs(balance))}
         </span>
       </div>
 
       <div className="summary-section">
-        <h3>Expense Categories</h3>
+        <h3>{t('expenseCategories')}</h3>
         {expenseSummary.length === 0 ? (
-          <p className="empty-text">No expenses yet</p>
+          <p className="empty-text">{t('noExpensesYet')}</p>
         ) : (
           <div className="summary-list">
             {expenseSummary.map((item) => (
               <div key={item.category} className="summary-item">
-                <span>{item.category}</span>
-                <span className="amount expense">-${item.total.toFixed(2)}</span>
+                <span>{translateCategory(item.category)}</span>
+                <span className="amount expense">-{formatMoney(item.total)}</span>
               </div>
             ))}
             <div className="summary-item total">
-              <span>Total Expenses</span>
-              <span className="amount expense">-${totalExpense.toFixed(2)}</span>
+              <span>{t('totalExpenses')}</span>
+              <span className="amount expense">-{formatMoney(totalExpense)}</span>
             </div>
           </div>
         )}
       </div>
 
       <div className="summary-section">
-        <h3>Income Categories</h3>
+        <h3>{t('incomeCategories')}</h3>
         {incomeSummary.length === 0 ? (
-          <p className="empty-text">No income yet</p>
+          <p className="empty-text">{t('noIncomeYet')}</p>
         ) : (
           <div className="summary-list">
             {incomeSummary.map((item) => (
               <div key={item.category} className="summary-item">
-                <span>{item.category}</span>
-                <span className="amount income">+${item.total.toFixed(2)}</span>
+                <span>{translateCategory(item.category)}</span>
+                <span className="amount income">+{formatMoney(item.total)}</span>
               </div>
             ))}
             <div className="summary-item total">
-              <span>Total Income</span>
-              <span className="amount income">+${totalIncome.toFixed(2)}</span>
+              <span>{t('totalIncome')}</span>
+              <span className="amount income">+{formatMoney(totalIncome)}</span>
             </div>
           </div>
         )}

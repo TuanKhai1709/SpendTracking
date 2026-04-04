@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 
 export default function Register() {
   const { user, register } = useAuth();
+  const { t } = useLang();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,8 +21,8 @@ export default function Register() {
     try {
       await register(username, email, password);
     } catch (err) {
-      const msg = err.code === 'auth/email-already-in-use' ? 'Email already in use' :
-        err.code === 'auth/weak-password' ? 'Password must be at least 6 characters' :
+      const msg = err.code === 'auth/email-already-in-use' ? t('emailInUse') :
+        err.code === 'auth/weak-password' ? t('weakPassword') :
           err.message;
       setError(msg);
     } finally {
@@ -32,50 +34,50 @@ export default function Register() {
     <div className="auth-page">
       <div className="auth-card">
         <h2>SpendTracker</h2>
-        <p className="subtitle">Create your account</p>
+        <p className="subtitle">{t('createYourAccount')}</p>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Username</label>
+            <label>{t('username')}</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="johndoe"
+              placeholder={t('usernamePlaceholder')}
               autoComplete="username"
               maxLength={50}
             />
           </div>
           <div className="form-group">
-            <label>Email</label>
+            <label>{t('email')}</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="your@email.com"
+              placeholder={t('emailPlaceholder')}
               autoComplete="email"
             />
           </div>
           <div className="form-group">
-            <label>Password</label>
+            <label>{t('password')}</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              placeholder="At least 6 characters"
+              placeholder={t('passwordMinPlaceholder')}
               autoComplete="new-password"
             />
           </div>
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? t('creatingAccount') : t('createAccount')}
           </button>
         </form>
         <p className="auth-link">
-          Already have an account? <Link to="/login">Sign in</Link>
+          {t('haveAccount')} <Link to="/login">{t('signIn')}</Link>
         </p>
       </div>
     </div>

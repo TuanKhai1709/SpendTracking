@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { LangProvider } from './context/LangContext';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -10,6 +11,7 @@ import './App.css';
 
 function App() {
   return (
+    <LangProvider>
     <AuthProvider>
       <HashRouter>
         <Routes>
@@ -22,6 +24,7 @@ function App() {
         </Routes>
       </HashRouter>
     </AuthProvider>
+    </LangProvider>
   );
 }
 

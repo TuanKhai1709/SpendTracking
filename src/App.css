@@ -614,6 +614,33 @@ body {
   }
 }
 
+/* ==================== Language Toggle ==================== */
+
+.nav-lang {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: 0.7rem;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-lang:hover,
+.nav-lang:active {
+  color: var(--primary);
+}
+
+.lang-badge {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
 /* ==================== Responsive ==================== */
 
 @media (min-width: 768px) {

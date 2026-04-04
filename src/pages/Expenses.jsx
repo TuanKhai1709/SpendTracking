@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { collection, query, orderBy, limit, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import TransactionModal from '../components/TransactionModal';
 
 export default function Expenses() {
   const { user } = useAuth();
+  const { t, formatMoney, translateCategory } = useLang();
   const [expenses, setExpenses] = useState([]);
   const [filter, setFilter] = useState('recent');
   const [filterDate, setFilterDate] = useState('');
@@ -56,19 +58,19 @@ export default function Expenses() {
       setEditItem(null);
       fetchExpenses();
     } catch (err) {
-      alert('Failed to save');
+      alert(t('failedToSave'));
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this expense?')) {
+    if (window.confirm(t('deleteExpenseConfirm'))) {
       try {
         await deleteDoc(doc(db, 'users', user.uid, 'expenses', id));
         setShowModal(false);
         setEditItem(null);
         fetchExpenses();
       } catch (err) {
-        alert('Failed to delete');
+        alert(t('failedToDelete'));
       }
     }
   };
@@ -86,7 +88,7 @@ export default function Expenses() {
 
   return (
     <div className="page">
-      <h2 className="page-title">Expenses</h2>
+      <h2 className="page-title">{t('expenses')}</h2>
 
       <div className="filter-bar">
         <select
@@ -94,9 +96,9 @@ export default function Expenses() {
           onChange={(e) => handleFilterChange(e.target.value)}
           className="filter-select"
         >
-          <option value="recent">Recent (5)</option>
-          <option value="day">By Day</option>
-          <option value="month">By Month</option>
+          <option value="recent">{t('recent5')}</option>
+          <option value="day">{t('byDay')}</option>
+          <option value="month">{t('byMonth')}</option>
         </select>
         {filter === 'day' && (
           <input
@@ -118,7 +120,7 @@ export default function Expenses() {
 
       <div className="transaction-list">
         {expenses.length === 0 ? (
-          <p className="empty-text">No expenses found</p>
+          <p className="empty-text">{t('noExpensesFound')}</p>
         ) : (
           expenses.map((exp) => (
             <div
@@ -131,11 +133,11 @@ export default function Expenses() {
             >
               <div className="transaction-info">
                 <span className="transaction-title">{exp.title}</span>
-                <span className="transaction-category">{exp.category}</span>
+                <span className="transaction-category">{translateCategory(exp.category)}</span>
               </div>
               <div className="transaction-right">
                 <span className="transaction-amount expense">
-                  -${exp.amount.toFixed(2)}
+                  -{formatMoney(exp.amount)}
                 </span>
                 <span className="transaction-date">{exp.date}</span>
               </div>
