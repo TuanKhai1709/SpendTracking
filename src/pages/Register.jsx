@@ -20,8 +20,8 @@ export default function Register() {
       await register(username, email, password);
     } catch (err) {
       const msg = err.code === 'auth/email-already-in-use' ? 'Email already in use' :
-                  err.code === 'auth/weak-password' ? 'Password must be at least 6 characters' :
-                  err.message;
+        err.code === 'auth/weak-password' ? 'Password must be at least 6 characters' :
+          err.message;
       setError(msg);
     } finally {
       setLoading(false);
