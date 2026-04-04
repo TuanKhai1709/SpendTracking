@@ -42,7 +42,7 @@ const translations = {
     totalIncome: 'Total Income',
 
     // Transactions
-    recent5: 'Recent (5)',
+    recent10: 'Recent (10)',
     byDay: 'By Day',
     byMonth: 'By Month',
     noExpensesFound: 'No expenses found',
@@ -121,7 +121,7 @@ const translations = {
     totalIncome: 'Tổng thu nhập',
 
     // Transactions
-    recent5: 'Gần đây (5)',
+    recent10: 'Gần đây (10)',
     byDay: 'Theo ngày',
     byMonth: 'Theo tháng',
     noExpensesFound: 'Không tìm thấy chi tiêu',

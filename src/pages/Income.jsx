@@ -22,7 +22,7 @@ export default function Income() {
 
   const fetchIncome = async () => {
     try {
-      const q = query(getColRef(), orderBy('date', 'desc'), orderBy('createdAt', 'desc'));
+      const q = query(getColRef(), orderBy('date', 'desc'));
       const snap = await getDocs(q);
       let items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
@@ -31,11 +31,11 @@ export default function Income() {
       } else if (filter === 'month' && filterDate) {
         items = items.filter((e) => e.date.slice(0, 7) === filterDate);
       } else {
-        items = items.slice(0, 5);
+        items = items.slice(0, 10);
       }
       setIncomeList(items);
     } catch (err) {
-      console.error('Failed to fetch income');
+      console.error('Failed to fetch income', err);
     }
   };
 
@@ -96,7 +96,7 @@ export default function Income() {
           onChange={(e) => handleFilterChange(e.target.value)}
           className="filter-select"
         >
-          <option value="recent">{t('recent5')}</option>
+          <option value="recent">{t('recent10')}</option>
           <option value="day">{t('byDay')}</option>
           <option value="month">{t('byMonth')}</option>
         </select>

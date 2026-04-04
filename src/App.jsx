@@ -12,18 +12,18 @@ import './App.css';
 function App() {
   return (
     <LangProvider>
-    <AuthProvider>
-      <HashRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          <Route path="/expenses" element={<PrivateRoute><Expenses /></PrivateRoute>} />
-          <Route path="/income" element={<PrivateRoute><Income /></PrivateRoute>} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </HashRouter>
-    </AuthProvider>
+      <AuthProvider>
+        <HashRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/expenses" element={<PrivateRoute><Expenses /></PrivateRoute>} />
+            <Route path="/income" element={<PrivateRoute><Income /></PrivateRoute>} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </HashRouter>
+      </AuthProvider>
     </LangProvider>
   );
 }
