@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import api from '../api';
+import { collection, query, orderBy, limit, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import TransactionModal from '../components/TransactionModal';
 
 export default function Expenses() {
+  const { user } = useAuth();
   const [expenses, setExpenses] = useState([]);
   const [filter, setFilter] = useState('recent');
   const [filterDate, setFilterDate] = useState('');
@@ -10,19 +13,25 @@ export default function Expenses() {
   const [editItem, setEditItem] = useState(null);
 
   useEffect(() => {
-    fetchExpenses();
-  }, [filter, filterDate]);
+    if (user) fetchExpenses();
+  }, [user, filter, filterDate]);
+
+  const getColRef = () => collection(db, 'users', user.uid, 'expenses');
 
   const fetchExpenses = async () => {
     try {
-      let params = {};
+      const q = query(getColRef(), orderBy('date', 'desc'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      let items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
       if (filter === 'day' && filterDate) {
-        params = { filter: 'day', date: filterDate };
+        items = items.filter((e) => e.date === filterDate);
       } else if (filter === 'month' && filterDate) {
-        params = { filter: 'month', date: filterDate };
+        items = items.filter((e) => e.date.slice(0, 7) === filterDate);
+      } else {
+        items = items.slice(0, 5);
       }
-      const res = await api.get('/expenses', { params });
-      setExpenses(res.data);
+      setExpenses(items);
     } catch (err) {
       console.error('Failed to fetch expenses');
     }
@@ -31,22 +40,30 @@ export default function Expenses() {
   const handleSave = async (data) => {
     try {
       if (editItem) {
-        await api.put(`/expenses/${editItem.id}`, data);
+        await updateDoc(doc(db, 'users', user.uid, 'expenses', editItem.id), {
+          title: data.title,
+          category: data.category,
+          amount: data.amount,
+          date: data.date,
+        });
       } else {
-        await api.post('/expenses', data);
+        await addDoc(getColRef(), {
+          ...data,
+          createdAt: Timestamp.now(),
+        });
       }
       setShowModal(false);
       setEditItem(null);
       fetchExpenses();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save');
+      alert('Failed to save');
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Delete this expense?')) {
       try {
-        await api.delete(`/expenses/${id}`);
+        await deleteDoc(doc(db, 'users', user.uid, 'expenses', id));
         setShowModal(false);
         setEditItem(null);
         fetchExpenses();

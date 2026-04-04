@@ -1,74 +1,79 @@
 # SpendTracker
 
-A lightweight personal expense tracking web app optimized for mobile browsers.
+A lightweight personal expense tracking web app optimized for mobile browsers. Deployed on GitHub Pages with Firebase backend.
 
 ## Tech Stack
 
-- **Backend:** Node.js, Express, SQLite (better-sqlite3)
 - **Frontend:** React (Vite), Chart.js
-- **Auth:** JWT-based authentication
+- **Auth:** Firebase Authentication
+- **Database:** Cloud Firestore
+- **Hosting:** GitHub Pages (via GitHub Actions)
 
 ## Setup
 
 ### Prerequisites
 
 - Node.js 18+
-- npm
+- A Firebase project (free tier)
 
-### Install
+### Firebase Setup
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Enable **Authentication** → Email/Password
+4. Create a **Firestore Database** (start in test mode)
+5. Go to Project Settings → Your apps → Add web app → copy config values
+
+### Install & Run Locally
 
 ```bash
-npm run install-all
+npm install
 ```
 
-### Development
+Create a `.env.local` file:
+
+```
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
 
 ```bash
 npm run dev
 ```
 
-This starts both the Express server (port 5000) and the Vite dev server (port 3000).
+### Deploy to GitHub Pages
 
-### Production Build
-
-```bash
-npm run build
-npm start
-```
-
-The app will be available at `http://localhost:5000`.
-
-## Deployment (Render)
-
-1. Push this repo to GitHub
-2. Create a new **Web Service** on [Render](https://render.com)
-3. Connect your GitHub repo
-4. Set the following:
-   - **Build Command:** `npm run install-all && npm run build`
-   - **Start Command:** `npm start`
-   - **Environment Variables:** Set `JWT_SECRET` to a secure random string
+1. Push code to GitHub
+2. Go to repo **Settings** → **Pages** → Source: **GitHub Actions**
+3. Go to repo **Settings** → **Secrets and variables** → **Actions** → add each `VITE_FIREBASE_*` secret
+4. Push to `main` branch and it will auto-deploy
 
 ## Project Structure
 
 ```
 SpendTracker/
-├── server/
-│   ├── index.js          # Express server
-│   ├── db.js             # SQLite setup
-│   ├── middleware/auth.js # JWT auth middleware
-│   └── routes/
-│       ├── auth.js       # Login & Register
-│       ├── expenses.js   # Expense CRUD
-│       └── income.js     # Income CRUD
-├── client/
-│   ├── index.html
-│   ├── vite.config.js
-│   └── src/
-│       ├── App.jsx
-│       ├── App.css
-│       ├── api.js
-│       ├── context/AuthContext.jsx
-│       ├── components/
-│       └── pages/
+├── .github/workflows/deploy.yml
+├── src/
+│   ├── App.jsx
+│   ├── App.css
+│   ├── main.jsx
+│   ├── firebase.js
+│   ├── context/AuthContext.jsx
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── PrivateRoute.jsx
+│   │   └── TransactionModal.jsx
+│   └── pages/
+│       ├── Login.jsx
+│       ├── Register.jsx
+│       ├── Dashboard.jsx
+│       ├── Expenses.jsx
+│       └── Income.jsx
+├── index.html
+├── vite.config.js
 └── package.json
 ```

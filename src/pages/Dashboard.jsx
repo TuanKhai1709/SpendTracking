@@ -9,30 +9,48 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import api from '../api';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [expenseSummary, setExpenseSummary] = useState([]);
   const [incomeSummary, setIncomeSummary] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (user) fetchData();
+  }, [user]);
 
   const fetchData = async () => {
     try {
-      const [expRes, incRes] = await Promise.all([
-        api.get('/expenses/summary'),
-        api.get('/income/summary'),
-      ]);
-      setExpenseSummary(expRes.data);
-      setIncomeSummary(incRes.data);
-      setTotalExpense(expRes.data.reduce((sum, e) => sum + e.total, 0));
-      setTotalIncome(incRes.data.reduce((sum, i) => sum + i.total, 0));
+      const expSnap = await getDocs(collection(db, 'users', user.uid, 'expenses'));
+      const incSnap = await getDocs(collection(db, 'users', user.uid, 'income'));
+
+      const expByCategory = {};
+      let expTotal = 0;
+      expSnap.forEach((doc) => {
+        const d = doc.data();
+        expByCategory[d.category] = (expByCategory[d.category] || 0) + d.amount;
+        expTotal += d.amount;
+      });
+
+      const incByCategory = {};
+      let incTotal = 0;
+      incSnap.forEach((doc) => {
+        const d = doc.data();
+        incByCategory[d.category] = (incByCategory[d.category] || 0) + d.amount;
+        incTotal += d.amount;
+      });
+
+      setExpenseSummary(Object.entries(expByCategory).map(([category, total]) => ({ category, total })));
+      setIncomeSummary(Object.entries(incByCategory).map(([category, total]) => ({ category, total })));
+      setTotalExpense(expTotal);
+      setTotalIncome(incTotal);
     } catch (err) {
       console.error('Failed to fetch dashboard data');
     }
