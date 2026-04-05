@@ -4,20 +4,18 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Chart } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -150,40 +148,33 @@ export default function Dashboard() {
     labels: chartLabels,
     datasets: [
       {
-        type: 'line',
         label: t('income'),
         data: chartIncomeData,
-        borderColor: '#5B9BD5',
-        backgroundColor: '#5B9BD5',
-        pointBackgroundColor: '#5B9BD5',
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        borderWidth: 2.5,
-        tension: 0.3,
-        fill: false,
-        order: 1,
+        backgroundColor: '#7B68EE',
+        borderRadius: { topLeft: 4, topRight: 4 },
+        barPercentage: 0.7,
+        categoryPercentage: 0.8,
         datalabels: {
-          align: 'top',
           anchor: 'end',
-          color: '#5B9BD5',
-          font: { size: 10, weight: '600' },
+          align: 'top',
+          color: '#5B4FCF',
+          font: { size: 9, weight: '600' },
           formatter: (v) => shortMoney(v),
         },
       },
       {
-        type: 'bar',
         label: t('expenses'),
-        data: chartExpenseData,
-        backgroundColor: 'rgba(214, 130, 140, 0.75)',
-        borderRadius: 4,
-        barPercentage: 0.6,
-        order: 2,
+        data: chartExpenseData.map((v) => -v),
+        backgroundColor: '#F5C542',
+        borderRadius: { bottomLeft: 4, bottomRight: 4 },
+        barPercentage: 0.7,
+        categoryPercentage: 0.8,
         datalabels: {
-          align: 'end',
           anchor: 'end',
-          color: '#C0504D',
-          font: { size: 10, weight: '600' },
-          formatter: (v) => shortMoney(v),
+          align: 'bottom',
+          color: '#C49B20',
+          font: { size: 9, weight: '600' },
+          formatter: (v) => shortMoney(Math.abs(v)),
         },
       },
     ],
@@ -197,7 +188,22 @@ export default function Dashboard() {
       legend: {
         display: true,
         position: 'bottom',
-        labels: { usePointStyle: true, padding: 16, font: { size: 12 } },
+        labels: {
+          usePointStyle: true,
+          padding: 16,
+          font: { size: 12 },
+          generateLabels: (chart) => {
+            const ds = chart.data.datasets;
+            return ds.map((d, i) => ({
+              text: d.label,
+              fillStyle: d.backgroundColor,
+              strokeStyle: d.backgroundColor,
+              hidden: !chart.isDatasetVisible(i),
+              datasetIndex: i,
+              pointStyle: 'rectRounded',
+            }));
+          },
+        },
       },
       title: {
         display: true,
@@ -207,18 +213,27 @@ export default function Dashboard() {
         padding: { bottom: 12 },
       },
       tooltip: {
-        callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}` },
+        callbacks: {
+          label: (ctx) => {
+            const val = Math.abs(ctx.raw);
+            return `${ctx.dataset.label}: ${formatMoney(val)}`;
+          },
+        },
       },
     },
     scales: {
       y: {
-        beginAtZero: true,
-        ticks: { callback: (v) => shortMoney(v), font: { size: 11 } },
+        stacked: true,
+        ticks: {
+          callback: (v) => shortMoney(Math.abs(v)),
+          font: { size: 10 },
+        },
         grid: { color: '#F0F2F5' },
       },
       x: {
+        stacked: true,
         grid: { display: false },
-        ticks: { font: { size: 11 } },
+        ticks: { font: { size: 10 } },
       },
     },
   };
@@ -258,9 +273,9 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="chart-container" style={{ height: '320px' }}>
+      <div className="chart-container" style={{ height: '360px' }}>
         {chartLabels.length > 0 ? (
-          <Chart type="bar" data={chartData} options={chartOptions} plugins={[ChartDataLabels]} />
+          <Bar data={chartData} options={chartOptions} plugins={[ChartDataLabels]} />
         ) : (
           <p className="empty-text" style={{ textAlign: 'center', paddingTop: '120px' }}>{t('noExpensesYet')}</p>
         )}
