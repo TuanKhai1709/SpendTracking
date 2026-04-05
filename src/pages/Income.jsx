@@ -3,7 +3,7 @@ import { collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc,
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
-import TransactionModal from '../components/TransactionModal';
+import TransactionModal, { INCOME_CATEGORIES } from '../components/TransactionModal';
 
 export default function Income() {
   const { user } = useAuth();
@@ -11,12 +11,13 @@ export default function Income() {
   const [incomeList, setIncomeList] = useState([]);
   const [filterMonth, setFilterMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [filterDay, setFilterDay] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
   useEffect(() => {
     if (user) fetchIncome();
-  }, [user, filterMonth, filterDay]);
+  }, [user, filterMonth, filterDay, filterCategory]);
 
   const getColRef = () => collection(db, 'users', user.uid, 'income');
 
@@ -31,6 +32,9 @@ export default function Income() {
       }
       if (filterDay) {
         items = items.filter((e) => e.date === filterDay);
+      }
+      if (filterCategory) {
+        items = items.filter((e) => e.category === filterCategory);
       }
       setIncomeList(items);
     } catch (err) {
@@ -96,6 +100,19 @@ export default function Income() {
             onChange={(e) => setFilterDay(e.target.value)}
             className="filter-input"
           />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">{t('category')}</label>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">{t('allCategories')}</option>
+            {INCOME_CATEGORIES.map((c) => (
+              <option key={c} value={c}>{translateCategory(c)}</option>
+            ))}
+          </select>
         </div>
       </div>
 
