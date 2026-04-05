@@ -17,7 +17,7 @@ import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, ChartDataLabels);
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -259,7 +259,11 @@ export default function Dashboard() {
       </div>
 
       <div className="chart-container" style={{ height: '320px' }}>
-        <Chart type="bar" data={chartData} options={chartOptions} />
+        {chartLabels.length > 0 ? (
+          <Chart type="bar" data={chartData} options={chartOptions} plugins={[ChartDataLabels]} />
+        ) : (
+          <p className="empty-text" style={{ textAlign: 'center', paddingTop: '120px' }}>{t('noExpensesYet')}</p>
+        )}
       </div>
 
       <div
