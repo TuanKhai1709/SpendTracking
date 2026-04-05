@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +16,27 @@ export default function Income() {
   const [filterCategory, setFilterCategory] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(20);
+  const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [filterYear, filterMonth, filterDay, filterCategory]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCount((prev) => prev + 20);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [incomeList]);
 
   useEffect(() => {
     if (user) fetchIncome();
@@ -24,8 +45,8 @@ export default function Income() {
   const getColRef = () => collection(db, 'users', user.uid, 'income');
 
   const monthNames = lang === 'vi'
-    ? ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12']
-    : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    ? ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => String(currentYear - i));
   const selectedYM = `${filterYear}-${filterMonth}`;
@@ -133,27 +154,32 @@ export default function Income() {
         {incomeList.length === 0 ? (
           <p className="empty-text">{t('noIncomeFound')}</p>
         ) : (
-          incomeList.map((item) => (
-            <div
-              key={item.id}
-              className="transaction-card"
-              onClick={() => {
-                setEditItem(item);
-                setShowModal(true);
-              }}
-            >
-              <div className="transaction-info">
-                <span className="transaction-title">{item.title}</span>
-                <span className="transaction-category">{translateCategory(item.category)}</span>
+          <>
+            {incomeList.slice(0, visibleCount).map((item) => (
+              <div
+                key={item.id}
+                className="transaction-card"
+                onClick={() => {
+                  setEditItem(item);
+                  setShowModal(true);
+                }}
+              >
+                <div className="transaction-info">
+                  <span className="transaction-title">{item.title}</span>
+                  <span className="transaction-category">{translateCategory(item.category)}</span>
+                </div>
+                <div className="transaction-right">
+                  <span className="transaction-amount income">
+                    +{formatMoney(item.amount)}
+                  </span>
+                  <span className="transaction-date">{item.date}</span>
+                </div>
               </div>
-              <div className="transaction-right">
-                <span className="transaction-amount income">
-                  +{formatMoney(item.amount)}
-                </span>
-                <span className="transaction-date">{item.date}</span>
-              </div>
-            </div>
-          ))
+            ))}
+            {visibleCount < incomeList.length && (
+              <div ref={sentinelRef} className="scroll-sentinel" />
+            )}
+          </>
         )}
       </div>
 

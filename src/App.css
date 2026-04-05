@@ -405,6 +405,10 @@ body {
   gap: 10px;
 }
 
+.scroll-sentinel {
+  height: 1px;
+}
+
 .transaction-card {
   display: flex;
   justify-content: space-between;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +16,29 @@ export default function Expenses() {
   const [filterCategory, setFilterCategory] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(20);
+  const sentinelRef = useRef(null);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [filterYear, filterMonth, filterDay, filterCategory]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCount((prev) => prev + 20);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [expenses]);
 
   useEffect(() => {
     if (user) fetchExpenses();
@@ -24,8 +47,8 @@ export default function Expenses() {
   const getColRef = () => collection(db, 'users', user.uid, 'expenses');
 
   const monthNames = lang === 'vi'
-    ? ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12']
-    : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    ? ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => String(currentYear - i));
   const selectedYM = `${filterYear}-${filterMonth}`;
@@ -135,27 +158,32 @@ export default function Expenses() {
         {expenses.length === 0 ? (
           <p className="empty-text">{t('noExpensesFound')}</p>
         ) : (
-          expenses.map((exp) => (
-            <div
-              key={exp.id}
-              className="transaction-card"
-              onClick={() => {
-                setEditItem(exp);
-                setShowModal(true);
-              }}
-            >
-              <div className="transaction-info">
-                <span className="transaction-title">{exp.title}</span>
-                <span className="transaction-category">{translateCategory(exp.category)}</span>
+          <>
+            {expenses.slice(0, visibleCount).map((exp) => (
+              <div
+                key={exp.id}
+                className="transaction-card"
+                onClick={() => {
+                  setEditItem(exp);
+                  setShowModal(true);
+                }}
+              >
+                <div className="transaction-info">
+                  <span className="transaction-title">{exp.title}</span>
+                  <span className="transaction-category">{translateCategory(exp.category)}</span>
+                </div>
+                <div className="transaction-right">
+                  <span className="transaction-amount expense">
+                    -{formatMoney(exp.amount)}
+                  </span>
+                  <span className="transaction-date">{exp.date}</span>
+                </div>
               </div>
-              <div className="transaction-right">
-                <span className="transaction-amount expense">
-                  -{formatMoney(exp.amount)}
-                </span>
-                <span className="transaction-date">{exp.date}</span>
-              </div>
-            </div>
-          ))
+            ))}
+            {visibleCount < expenses.length && (
+              <div ref={sentinelRef} className="scroll-sentinel" />
+            )}
+          </>
         )}
       </div>
 
