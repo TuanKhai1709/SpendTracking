@@ -349,7 +349,7 @@ body {
 
 .filter-bar {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
@@ -358,7 +358,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  flex: 1;
+  flex: 1 1 calc(50% - 8px);
   min-width: 0;
 }
 
@@ -370,14 +370,15 @@ body {
 
 .filter-select,
 .filter-input {
-  padding: 10px 14px;
+  padding: 8px 10px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   background: var(--card);
   color: var(--text);
   outline: none;
   transition: border-color 0.2s;
+  width: 100%;
 }
 
 .filter-select:focus,
@@ -387,11 +388,13 @@ body {
 
 .filter-select {
   flex: 0 0 auto;
+  width: 100%;
 }
 
 .filter-input {
   flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
 /* ==================== Transaction List ==================== */

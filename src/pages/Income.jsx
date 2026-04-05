@@ -7,9 +7,11 @@ import TransactionModal, { INCOME_CATEGORIES } from '../components/TransactionMo
 
 export default function Income() {
   const { user } = useAuth();
-  const { t, formatMoney, translateCategory } = useLang();
+  const { t, lang, formatMoney, translateCategory } = useLang();
   const [incomeList, setIncomeList] = useState([]);
-  const [filterMonth, setFilterMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const now = new Date();
+  const [filterYear, setFilterYear] = useState(String(now.getFullYear()));
+  const [filterMonth, setFilterMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [filterDay, setFilterDay] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -17,9 +19,18 @@ export default function Income() {
 
   useEffect(() => {
     if (user) fetchIncome();
-  }, [user, filterMonth, filterDay, filterCategory]);
+  }, [user, filterYear, filterMonth, filterDay, filterCategory]);
 
   const getColRef = () => collection(db, 'users', user.uid, 'income');
+
+  const monthNames = lang === 'vi'
+    ? ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12']
+    : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 7 }, (_, i) => String(currentYear - i));
+  const selectedYM = `${filterYear}-${filterMonth}`;
+  const daysInMonth = new Date(Number(filterYear), Number(filterMonth), 0).getDate();
+  const dayOptions = Array.from({ length: daysInMonth }, (_, i) => String(i + 1).padStart(2, '0'));
 
   const fetchIncome = async () => {
     try {
@@ -27,11 +38,9 @@ export default function Income() {
       const snap = await getDocs(q);
       let items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
-      if (filterMonth) {
-        items = items.filter((e) => e.date.slice(0, 7) === filterMonth);
-      }
+      items = items.filter((e) => e.date.slice(0, 7) === selectedYM);
       if (filterDay) {
-        items = items.filter((e) => e.date === filterDay);
+        items = items.filter((e) => e.date === `${selectedYM}-${filterDay}`);
       }
       if (filterCategory) {
         items = items.filter((e) => e.category === filterCategory);
@@ -84,22 +93,26 @@ export default function Income() {
 
       <div className="filter-bar">
         <div className="filter-group">
+          <label className="filter-label">{t('year')}</label>
+          <select value={filterYear} onChange={(e) => { setFilterYear(e.target.value); setFilterDay(''); }} className="filter-select">
+            {yearOptions.map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+        <div className="filter-group">
           <label className="filter-label">{t('month')}</label>
-          <input
-            type="month"
-            value={filterMonth}
-            onChange={(e) => { setFilterMonth(e.target.value); setFilterDay(''); }}
-            className="filter-input"
-          />
+          <select value={filterMonth} onChange={(e) => { setFilterMonth(e.target.value); setFilterDay(''); }} className="filter-select">
+            {monthNames.map((name, i) => {
+              const val = String(i + 1).padStart(2, '0');
+              return <option key={val} value={val}>{name}</option>;
+            })}
+          </select>
         </div>
         <div className="filter-group">
           <label className="filter-label">{t('day')}</label>
-          <input
-            type="date"
-            value={filterDay}
-            onChange={(e) => setFilterDay(e.target.value)}
-            className="filter-input"
-          />
+          <select value={filterDay} onChange={(e) => setFilterDay(e.target.value)} className="filter-select">
+            <option value="">{t('allDays')}</option>
+            {dayOptions.map((d) => <option key={d} value={d}>{Number(d)}</option>)}
+          </select>
         </div>
         <div className="filter-group">
           <label className="filter-label">{t('category')}</label>

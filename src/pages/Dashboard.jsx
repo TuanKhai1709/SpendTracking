@@ -20,6 +20,10 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 export default function Dashboard() {
   const { user } = useAuth();
   const { t, formatMoney, translateCategory, lang, currencySymbol, fromUSD, EXCHANGE_RATE } = useLang();
+
+  const monthNames = lang === 'vi'
+    ? ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12']
+    : ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const [expenseSummary, setExpenseSummary] = useState([]);
   const [incomeSummary, setIncomeSummary] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
@@ -28,23 +32,25 @@ export default function Dashboard() {
   const [chartIncomeData, setChartIncomeData] = useState([]);
   const [chartExpenseData, setChartExpenseData] = useState([]);
   const [period, setPeriod] = useState('day');
-  const [periodValue, setPeriodValue] = useState(() => new Date().toISOString().slice(0, 7));
+  const [periodYear, setPeriodYear] = useState(() => String(new Date().getFullYear()));
+  const [periodMonth, setPeriodMonth] = useState(() => String(new Date().getMonth() + 1).padStart(2, '0'));
 
   const handlePeriodChange = (newPeriod) => {
     setPeriod(newPeriod);
     const now = new Date();
-    if (newPeriod === 'day') {
-      setPeriodValue(now.toISOString().slice(0, 7)); // select a month to see daily breakdown
-    } else if (newPeriod === 'month') {
-      setPeriodValue(String(now.getFullYear())); // select a year to see monthly breakdown
-    } else if (newPeriod === 'year') {
-      setPeriodValue('all');
-    }
+    setPeriodYear(String(now.getFullYear()));
+    setPeriodMonth(String(now.getMonth() + 1).padStart(2, '0'));
   };
+
+  const periodValue = period === 'day'
+    ? `${periodYear}-${periodMonth}`
+    : period === 'month'
+      ? periodYear
+      : 'all';
 
   useEffect(() => {
     if (user) fetchData();
-  }, [user, period, periodValue]);
+  }, [user, period, periodYear, periodMonth]);
 
   const fetchData = async () => {
     try {
@@ -243,33 +249,33 @@ export default function Dashboard() {
       <h2 className="page-title">{t('dashboard')}</h2>
 
       <div className="filter-bar">
-        <select
-          value={period}
-          onChange={(e) => handlePeriodChange(e.target.value)}
-          className="filter-select"
-        >
-          <option value="day">{t('byDay')}</option>
-          <option value="month">{t('byMonth')}</option>
-          <option value="year">{t('byYear')}</option>
-        </select>
-        {period === 'day' && (
-          <input
-            type="month"
-            value={periodValue}
-            onChange={(e) => setPeriodValue(e.target.value)}
-            className="filter-input"
-          />
-        )}
-        {period === 'month' && (
+        <div className="filter-group">
           <select
-            value={periodValue}
-            onChange={(e) => setPeriodValue(e.target.value)}
+            value={period}
+            onChange={(e) => handlePeriodChange(e.target.value)}
             className="filter-select"
           >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
+            <option value="day">{t('byDay')}</option>
+            <option value="month">{t('byMonth')}</option>
+            <option value="year">{t('byYear')}</option>
           </select>
+        </div>
+        {(period === 'day' || period === 'month') && (
+          <div className="filter-group">
+            <select value={periodYear} onChange={(e) => setPeriodYear(e.target.value)} className="filter-select">
+              {yearOptions.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        )}
+        {period === 'day' && (
+          <div className="filter-group">
+            <select value={periodMonth} onChange={(e) => setPeriodMonth(e.target.value)} className="filter-select">
+              {monthNames.map((name, i) => {
+                const val = String(i + 1).padStart(2, '0');
+                return <option key={val} value={val}>{name}</option>;
+              })}
+            </select>
+          </div>
         )}
       </div>
 
