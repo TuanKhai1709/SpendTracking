@@ -4,25 +4,31 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Chart } from 'react-chartjs-2';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, ChartDataLabels);
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { t, formatMoney, translateCategory, lang, currencySymbol } = useLang();
+  const { t, formatMoney, translateCategory, lang, currencySymbol, fromUSD, EXCHANGE_RATE } = useLang();
   const [expenseSummary, setExpenseSummary] = useState([]);
   const [incomeSummary, setIncomeSummary] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
+  const [chartLabels, setChartLabels] = useState([]);
+  const [chartIncomeData, setChartIncomeData] = useState([]);
+  const [chartExpenseData, setChartExpenseData] = useState([]);
   const [period, setPeriod] = useState('month');
   const [periodValue, setPeriodValue] = useState(() => new Date().toISOString().slice(0, 7));
 
@@ -30,11 +36,11 @@ export default function Dashboard() {
     setPeriod(newPeriod);
     const now = new Date();
     if (newPeriod === 'day') {
-      setPeriodValue(now.toISOString().split('T')[0]);
+      setPeriodValue(now.toISOString().slice(0, 7)); // select a month to see daily breakdown
     } else if (newPeriod === 'month') {
-      setPeriodValue(now.toISOString().slice(0, 7));
+      setPeriodValue(String(now.getFullYear())); // select a year to see monthly breakdown
     } else if (newPeriod === 'year') {
-      setPeriodValue(String(now.getFullYear()));
+      setPeriodValue('all');
     }
   };
 
@@ -42,38 +48,78 @@ export default function Dashboard() {
     if (user) fetchData();
   }, [user, period, periodValue]);
 
-  const matchesPeriod = (dateStr) => {
-    if (period === 'day') return dateStr === periodValue;
-    if (period === 'month') return dateStr.slice(0, 7) === periodValue;
-    if (period === 'year') return dateStr.slice(0, 4) === periodValue;
-    return true;
-  };
-
   const fetchData = async () => {
     try {
       const expSnap = await getDocs(collection(db, 'users', user.uid, 'expenses'));
       const incSnap = await getDocs(collection(db, 'users', user.uid, 'income'));
 
+      const allExpenses = [];
+      expSnap.forEach((doc) => allExpenses.push(doc.data()));
+      const allIncome = [];
+      incSnap.forEach((doc) => allIncome.push(doc.data()));
+
+      // Generate time buckets based on period
+      let buckets = [];
+      let getBucket;
+      let filterItem;
+
+      if (period === 'day') {
+        // Show each day of the selected month
+        const [y, m] = periodValue.split('-').map(Number);
+        const daysInMonth = new Date(y, m, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          const key = `${periodValue}-${String(d).padStart(2, '0')}`;
+          buckets.push({ key, label: String(d) });
+        }
+        getBucket = (dateStr) => dateStr;
+        filterItem = (d) => d.date.slice(0, 7) === periodValue;
+      } else if (period === 'month') {
+        // Show 12 months of the selected year
+        const monthNames = lang === 'vi'
+          ? ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12']
+          : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        for (let m = 1; m <= 12; m++) {
+          const key = `${periodValue}-${String(m).padStart(2, '0')}`;
+          buckets.push({ key, label: monthNames[m - 1] });
+        }
+        getBucket = (dateStr) => dateStr.slice(0, 7);
+        filterItem = (d) => d.date.slice(0, 4) === periodValue;
+      } else {
+        // Year: show last 7 years
+        const curYear = new Date().getFullYear();
+        for (let y = curYear - 6; y <= curYear; y++) {
+          buckets.push({ key: String(y), label: String(y) });
+        }
+        getBucket = (dateStr) => dateStr.slice(0, 4);
+        filterItem = () => true;
+      }
+
+      // Aggregate into buckets
+      const expBuckets = {};
+      const incBuckets = {};
+      buckets.forEach((b) => { expBuckets[b.key] = 0; incBuckets[b.key] = 0; });
+
       const expByCategory = {};
       let expTotal = 0;
-      expSnap.forEach((doc) => {
-        const d = doc.data();
-        if (matchesPeriod(d.date)) {
-          expByCategory[d.category] = (expByCategory[d.category] || 0) + d.amount;
-          expTotal += d.amount;
-        }
+      allExpenses.filter(filterItem).forEach((d) => {
+        const bk = getBucket(d.date);
+        if (expBuckets[bk] !== undefined) expBuckets[bk] += d.amount;
+        expByCategory[d.category] = (expByCategory[d.category] || 0) + d.amount;
+        expTotal += d.amount;
       });
 
       const incByCategory = {};
       let incTotal = 0;
-      incSnap.forEach((doc) => {
-        const d = doc.data();
-        if (matchesPeriod(d.date)) {
-          incByCategory[d.category] = (incByCategory[d.category] || 0) + d.amount;
-          incTotal += d.amount;
-        }
+      allIncome.filter(filterItem).forEach((d) => {
+        const bk = getBucket(d.date);
+        if (incBuckets[bk] !== undefined) incBuckets[bk] += d.amount;
+        incByCategory[d.category] = (incByCategory[d.category] || 0) + d.amount;
+        incTotal += d.amount;
       });
 
+      setChartLabels(buckets.map((b) => b.label));
+      setChartIncomeData(buckets.map((b) => incBuckets[b.key]));
+      setChartExpenseData(buckets.map((b) => expBuckets[b.key]));
       setExpenseSummary(Object.entries(expByCategory).map(([category, total]) => ({ category, total })));
       setIncomeSummary(Object.entries(incByCategory).map(([category, total]) => ({ category, total })));
       setTotalExpense(expTotal);
@@ -85,18 +131,60 @@ export default function Dashboard() {
 
   const balance = totalIncome - totalExpense;
 
-  // Generate year options (current year and 5 years back)
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
+  const yearOptions = Array.from({ length: 7 }, (_, i) => String(currentYear - i));
+
+  const shortMoney = (val) => {
+    if (val === 0) return '';
+    if (lang === 'vi') {
+      const vnd = val * EXCHANGE_RATE;
+      if (vnd >= 1000000) return (vnd / 1000000).toFixed(1).replace(/\.0$/, '') + 'M₫';
+      if (vnd >= 1000) return (vnd / 1000).toFixed(0) + 'K₫';
+      return vnd.toLocaleString('vi-VN') + '₫';
+    }
+    if (val >= 1000) return '$' + (val / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return '$' + val.toFixed(0);
+  };
 
   const chartData = {
-    labels: [t('income'), t('expenses')],
+    labels: chartLabels,
     datasets: [
       {
-        data: [totalIncome, totalExpense],
-        backgroundColor: ['#26DE81', '#FC5C65'],
-        borderRadius: 8,
-        barThickness: 60,
+        type: 'line',
+        label: t('income'),
+        data: chartIncomeData,
+        borderColor: '#5B9BD5',
+        backgroundColor: '#5B9BD5',
+        pointBackgroundColor: '#5B9BD5',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2.5,
+        tension: 0.3,
+        fill: false,
+        order: 1,
+        datalabels: {
+          align: 'top',
+          anchor: 'end',
+          color: '#5B9BD5',
+          font: { size: 10, weight: '600' },
+          formatter: (v) => shortMoney(v),
+        },
+      },
+      {
+        type: 'bar',
+        label: t('expenses'),
+        data: chartExpenseData,
+        backgroundColor: 'rgba(214, 130, 140, 0.75)',
+        borderRadius: 4,
+        barPercentage: 0.6,
+        order: 2,
+        datalabels: {
+          align: 'end',
+          anchor: 'end',
+          color: '#C0504D',
+          font: { size: 10, weight: '600' },
+          formatter: (v) => shortMoney(v),
+        },
       },
     ],
   };
@@ -104,23 +192,33 @@ export default function Dashboard() {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
     plugins: {
-      legend: { display: false },
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: { usePointStyle: true, padding: 16, font: { size: 12 } },
+      },
       title: {
         display: true,
         text: t('incomeVsExpenses'),
-        font: { size: 16, weight: '600' },
+        font: { size: 15, weight: '600' },
         color: '#1A1A2E',
+        padding: { bottom: 12 },
+      },
+      tooltip: {
+        callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}` },
       },
     },
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { callback: (v) => formatMoney(v) },
+        ticks: { callback: (v) => shortMoney(v), font: { size: 11 } },
         grid: { color: '#F0F2F5' },
       },
       x: {
         grid: { display: false },
+        ticks: { font: { size: 11 } },
       },
     },
   };
@@ -141,21 +239,13 @@ export default function Dashboard() {
         </select>
         {period === 'day' && (
           <input
-            type="date"
-            value={periodValue}
-            onChange={(e) => setPeriodValue(e.target.value)}
-            className="filter-input"
-          />
-        )}
-        {period === 'month' && (
-          <input
             type="month"
             value={periodValue}
             onChange={(e) => setPeriodValue(e.target.value)}
             className="filter-input"
           />
         )}
-        {period === 'year' && (
+        {period === 'month' && (
           <select
             value={periodValue}
             onChange={(e) => setPeriodValue(e.target.value)}
@@ -168,8 +258,8 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="chart-container">
-        <Bar data={chartData} options={chartOptions} />
+      <div className="chart-container" style={{ height: '320px' }}>
+        <Chart type="bar" data={chartData} options={chartOptions} />
       </div>
 
       <div
