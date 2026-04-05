@@ -27,8 +27,8 @@ export default function Dashboard() {
   const [chartLabels, setChartLabels] = useState([]);
   const [chartIncomeData, setChartIncomeData] = useState([]);
   const [chartExpenseData, setChartExpenseData] = useState([]);
-  const [period, setPeriod] = useState('month');
-  const [periodValue, setPeriodValue] = useState(() => String(new Date().getFullYear()));
+  const [period, setPeriod] = useState('day');
+  const [periodValue, setPeriodValue] = useState(() => new Date().toISOString().slice(0, 7));
 
   const handlePeriodChange = (newPeriod) => {
     setPeriod(newPeriod);
