@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLang } from '../context/LangContext';
 
-const EXPENSE_CATEGORIES = ['Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Education', 'Other'];
+const EXPENSE_CATEGORIES = ['Food & Dining', 'Transportation', 'Shopping', 'Bills', 'Recurring Expenses', 'Recurring Investments', 'Entertainment', 'Healthcare', 'Education', 'Other'];
 const INCOME_CATEGORIES = ['Salary', 'Bonus', 'Tip', 'Investment', 'Other'];
 
 export default function TransactionModal({ type, transaction, onSave, onClose, onDelete }) {

@@ -72,12 +72,14 @@ const translations = {
     enterTitle: 'Enter title',
 
     // Categories - Expense
-    catFood: 'Food',
-    catTransport: 'Transport',
+    catFood: 'Food & Dining',
+    catTransport: 'Transportation',
     catShopping: 'Shopping',
     catBills: 'Bills',
+    catRecurringExpenses: 'Recurring Expenses',
+    catRecurringInvestments: 'Recurring Investments',
     catEntertainment: 'Entertainment',
-    catHealth: 'Health',
+    catHealth: 'Healthcare',
     catEducation: 'Education',
     catOther: 'Other',
 
@@ -157,11 +159,13 @@ const translations = {
 
     // Categories - Expense
     catFood: 'Ăn uống',
-    catTransport: 'Di chuyển',
+    catTransport: 'Đi lại',
     catShopping: 'Mua sắm',
-    catBills: 'Hoá đơn',
+    catBills: 'Hóa đơn',
+    catRecurringExpenses: 'Chi phí định kì',
+    catRecurringInvestments: 'Đầu tư định kì',
     catEntertainment: 'Giải trí',
-    catHealth: 'Sức khoẻ',
+    catHealth: 'Sức khỏe',
     catEducation: 'Giáo dục',
     catOther: 'Khác',
 
@@ -175,12 +179,14 @@ const translations = {
 
 // Map category keys to internal values (stored in DB always in English)
 const EXPENSE_CATEGORIES_MAP = {
-  Food: 'catFood',
-  Transport: 'catTransport',
+  'Food & Dining': 'catFood',
+  Transportation: 'catTransport',
   Shopping: 'catShopping',
   Bills: 'catBills',
+  'Recurring Expenses': 'catRecurringExpenses',
+  'Recurring Investments': 'catRecurringInvestments',
   Entertainment: 'catEntertainment',
-  Health: 'catHealth',
+  Healthcare: 'catHealth',
   Education: 'catEducation',
   Other: 'catOther',
 };
