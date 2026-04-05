@@ -12,7 +12,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'react-chartjs-2';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -30,7 +30,7 @@ export default function Dashboard() {
   const [chartIncomeData, setChartIncomeData] = useState([]);
   const [chartExpenseData, setChartExpenseData] = useState([]);
   const [period, setPeriod] = useState('month');
-  const [periodValue, setPeriodValue] = useState(() => new Date().toISOString().slice(0, 7));
+  const [periodValue, setPeriodValue] = useState(() => String(new Date().getFullYear()));
 
   const handlePeriodChange = (newPeriod) => {
     setPeriod(newPeriod);
