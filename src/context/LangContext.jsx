@@ -73,6 +73,7 @@ const translations = {
 
     // Categories - Expense
     catFood: 'Food & Dining',
+    catCoffee: 'Coffee',
     catTransport: 'Transportation',
     catShopping: 'Shopping',
     catBills: 'Bills',
@@ -159,6 +160,7 @@ const translations = {
 
     // Categories - Expense
     catFood: 'Ăn uống',
+    catCoffee: 'Cà phê',
     catTransport: 'Đi lại',
     catShopping: 'Mua sắm',
     catBills: 'Hóa đơn',
@@ -180,6 +182,7 @@ const translations = {
 // Map category keys to internal values (stored in DB always in English)
 const EXPENSE_CATEGORIES_MAP = {
   'Food & Dining': 'catFood',
+  Coffee: 'catCoffee',
   Transportation: 'catTransport',
   Shopping: 'catShopping',
   Bills: 'catBills',
