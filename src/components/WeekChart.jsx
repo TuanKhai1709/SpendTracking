@@ -25,12 +25,13 @@ export default function WeekChart() {
   const [chartLabels, setChartLabels] = useState([]);
   const [chartIncomeData, setChartIncomeData] = useState([]);
   const [chartExpenseData, setChartExpenseData] = useState([]);
+  const [range, setRange] = useState('7d');
 
   useEffect(() => {
-    if (user) fetchLast7Days();
-  }, [user]);
+    if (user) fetchChartData();
+  }, [user, range]);
 
-  const fetchLast7Days = async () => {
+  const fetchChartData = async () => {
     try {
       const expSnap = await getDocs(collection(db, 'users', user.uid, 'expenses'));
       const incSnap = await getDocs(collection(db, 'users', user.uid, 'income'));
@@ -40,12 +41,24 @@ export default function WeekChart() {
       const allIncome = [];
       incSnap.forEach((doc) => allIncome.push(doc.data()));
 
-      const days = [];
       const today = new Date();
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        days.push(d.toISOString().split('T')[0]);
+      let days = [];
+
+      if (range === 'month') {
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let i = 1; i <= daysInMonth; i++) {
+          const d = new Date(year, month, i);
+          days.push(d.toISOString().split('T')[0]);
+        }
+      } else {
+        const numDays = range === '14d' ? 14 : 7;
+        for (let i = numDays - 1; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          days.push(d.toISOString().split('T')[0]);
+        }
       }
 
       const dayNames = lang === 'vi'
@@ -53,6 +66,9 @@ export default function WeekChart() {
         : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
       const labels = days.map((dateStr) => {
+        if (range === 'month') {
+          return dateStr.slice(8);
+        }
         const d = new Date(dateStr + 'T00:00:00');
         return dayNames[d.getDay()];
       });
@@ -184,14 +200,27 @@ export default function WeekChart() {
   };
 
   return (
-    <div className="chart-container" style={{ height: '280px' }}>
-      {chartLabels.length > 0 ? (
-        <Bar data={chartData} options={chartOptions} plugins={[ChartDataLabels]} />
-      ) : (
-        <p className="empty-text" style={{ textAlign: 'center', paddingTop: '100px' }}>
-          {t('noExpensesYet')}
-        </p>
-      )}
+    <div>
+      <div className="chart-range-bar">
+        <button className={`chart-range-btn ${range === '7d' ? 'active' : ''}`} onClick={() => setRange('7d')}>
+          {t('last7Days')}
+        </button>
+        <button className={`chart-range-btn ${range === '14d' ? 'active' : ''}`} onClick={() => setRange('14d')}>
+          {t('last14Days')}
+        </button>
+        <button className={`chart-range-btn ${range === 'month' ? 'active' : ''}`} onClick={() => setRange('month')}>
+          {t('thisMonth')}
+        </button>
+      </div>
+      <div className="chart-container" style={{ height: '280px' }}>
+        {chartLabels.length > 0 ? (
+          <Bar data={chartData} options={chartOptions} plugins={[ChartDataLabels]} />
+        ) : (
+          <p className="empty-text" style={{ textAlign: 'center', paddingTop: '100px' }}>
+            {t('noExpensesYet')}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

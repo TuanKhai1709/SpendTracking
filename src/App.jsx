@@ -13,6 +13,7 @@ import Report from './pages/Report';
 import CategoryManagement from './pages/CategoryManagement';
 import BudgetManagement from './pages/BudgetManagement';
 import ChangePassword from './pages/ChangePassword';
+import RecurringExpenses from './pages/RecurringExpenses';
 import './App.css';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
               <Route path="/categories" element={<PrivateRoute><CategoryManagement /></PrivateRoute>} />
               <Route path="/budgets" element={<PrivateRoute><BudgetManagement /></PrivateRoute>} />
               <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+              <Route path="/recurring" element={<PrivateRoute><RecurringExpenses /></PrivateRoute>} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </HashRouter>

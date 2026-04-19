@@ -125,6 +125,17 @@ const translations = {
     passwordMismatch: 'Passwords do not match',
     passwordChanged: 'Password changed successfully',
     wrongPassword: 'Current password is incorrect',
+
+    // Chart range
+    last7Days: '7 Days',
+    last14Days: '14 Days',
+    thisMonth: 'This Month',
+
+    // Recurring
+    recurringExpenses: 'Recurring Expenses',
+    addRecurring: 'Add Recurring',
+    dayOfMonth: 'Day of Month',
+    noRecurring: 'No recurring expenses set',
   },
   vi: {
     // Nav
@@ -245,6 +256,17 @@ const translations = {
     passwordMismatch: 'Mật khẩu không khớp',
     passwordChanged: 'Đổi mật khẩu thành công',
     wrongPassword: 'Mật khẩu hiện tại không đúng',
+
+    // Chart range
+    last7Days: '7 ngày',
+    last14Days: '14 ngày',
+    thisMonth: 'Tháng này',
+
+    // Recurring
+    recurringExpenses: 'Chi phí định kì',
+    addRecurring: 'Thêm chi phí định kì',
+    dayOfMonth: 'Ngày trong tháng',
+    noRecurring: 'Chưa có chi phí định kì',
   },
 };
 

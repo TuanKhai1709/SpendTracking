@@ -2,6 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BudgetProvider } from '../context/BudgetContext';
 import { CategoryProvider } from '../context/CategoryContext';
+import { RecurringProvider } from '../context/RecurringContext';
 import Navbar from './Navbar';
 
 export default function PrivateRoute({ children }) {
@@ -18,12 +19,14 @@ export default function PrivateRoute({ children }) {
   return (
     <CategoryProvider>
       <BudgetProvider>
-        <div className="app-layout">
-          <div className="main-content">
-            {children}
+        <RecurringProvider>
+          <div className="app-layout">
+            <div className="main-content">
+              {children}
+            </div>
+            <Navbar />
           </div>
-          <Navbar />
-        </div>
+        </RecurringProvider>
       </BudgetProvider>
     </CategoryProvider>
   );

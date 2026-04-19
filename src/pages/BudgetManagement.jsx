@@ -3,15 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
 import { useBudget } from '../context/BudgetContext';
 import { useCategory } from '../context/CategoryContext';
+import editIcon from '../../assets/edit.png';
 import removeIcon from '../../assets/remove.png';
 import backIcon from '../../assets/back.png';
 
 export default function BudgetManagement() {
   const navigate = useNavigate();
   const { t, formatMoney, translateCategory, toUSD, fromUSD, currencySymbol } = useLang();
-  const { budgets, addBudget, deleteBudget } = useBudget();
+  const { budgets, addBudget, updateBudget, deleteBudget } = useBudget();
   const { expenseCategories } = useCategory();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
     category: 'all',
     amount: '',
@@ -19,18 +21,43 @@ export default function BudgetManagement() {
     endDate: '',
   });
 
-  const handleAdd = async (e) => {
+  const resetForm = () => {
+    setForm({ category: 'all', amount: '', startDate: new Date().toISOString().split('T')[0], endDate: '' });
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const amt = toUSD(parseFloat(form.amount));
     if (!amt || !form.endDate) return;
-    await addBudget({
-      category: form.category,
-      amount: amt,
-      startDate: form.startDate,
-      endDate: form.endDate,
+    if (editingId) {
+      await updateBudget(editingId, {
+        category: form.category,
+        amount: amt,
+        startDate: form.startDate,
+        endDate: form.endDate,
+      });
+    } else {
+      await addBudget({
+        category: form.category,
+        amount: amt,
+        startDate: form.startDate,
+        endDate: form.endDate,
+      });
+    }
+    resetForm();
+  };
+
+  const handleEdit = (b) => {
+    setEditingId(b.id);
+    setForm({
+      category: b.category,
+      amount: String(fromUSD(b.amount)),
+      startDate: b.startDate,
+      endDate: b.endDate,
     });
-    setForm({ category: 'all', amount: '', startDate: new Date().toISOString().split('T')[0], endDate: '' });
-    setShowForm(false);
+    setShowForm(true);
   };
 
   const handleDelete = async (id) => {
@@ -47,14 +74,14 @@ export default function BudgetManagement() {
       </div>
 
       {!showForm && (
-        <button className="btn btn-primary" style={{ marginBottom: 16, width: '100%' }} onClick={() => setShowForm(true)}>
+        <button className="btn btn-primary" style={{ marginBottom: 16, width: '100%' }} onClick={() => { setEditingId(null); setShowForm(true); }}>
           + {t('addBudget')}
         </button>
       )}
 
       {showForm && (
         <div className="budget-form-card">
-          <form onSubmit={handleAdd}>
+          <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>{t('category')}</label>
               <select
@@ -99,8 +126,8 @@ export default function BudgetManagement() {
               />
             </div>
             <div className="modal-actions">
-              <button type="button" className="btn" onClick={() => setShowForm(false)}>{t('cancel')}</button>
-              <button type="submit" className="btn btn-primary">{t('add')}</button>
+              <button type="button" className="btn" onClick={resetForm}>{t('cancel')}</button>
+              <button type="submit" className="btn btn-primary">{editingId ? t('update') : t('add')}</button>
             </div>
           </form>
         </div>
@@ -120,7 +147,10 @@ export default function BudgetManagement() {
                   {formatMoney(b.amount)} | {b.startDate} → {b.endDate}
                 </span>
               </div>
-              <button className="btn-icon" onClick={() => handleDelete(b.id)}><img src={removeIcon} alt="" className="action-icon" /></button>
+              <div className="category-actions">
+                <button className="btn-icon" onClick={() => handleEdit(b)}><img src={editIcon} alt="" className="action-icon" /></button>
+                <button className="btn-icon" onClick={() => handleDelete(b.id)}><img src={removeIcon} alt="" className="action-icon" /></button>
+              </div>
             </div>
           ))
         )}

@@ -307,6 +307,34 @@ body {
 
 /* ==================== Chart ==================== */
 
+.chart-range-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 8px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.chart-range-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.chart-range-btn.active {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
 .chart-container {
   background: var(--card);
   border-radius: var(--radius);
