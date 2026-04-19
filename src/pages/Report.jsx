@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import backIcon from '../../assets/back.png';
 
 export default function Report() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t, formatMoney, translateCategory, lang } = useLang();
   const [mode, setMode] = useState('month');
@@ -71,7 +74,12 @@ export default function Report() {
 
   return (
     <div className="page">
-      <h2 className="page-title">{t('report')}</h2>
+      <div className="page-header">
+        <button className="back-btn" onClick={() => navigate('/settings')}>
+          <img src={backIcon} alt="" className="back-icon" />
+        </button>
+        <h2 className="page-title">{t('report')}</h2>
+      </div>
 
       <div className="filter-bar">
         <div className="filter-group">

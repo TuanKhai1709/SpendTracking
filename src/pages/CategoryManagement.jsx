@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
 import { useCategory } from '../context/CategoryContext';
+import editIcon from '../../assets/edit.png';
+import removeIcon from '../../assets/remove.png';
+import backIcon from '../../assets/back.png';
 
 export default function CategoryManagement() {
+  const navigate = useNavigate();
   const { t, translateCategory } = useLang();
   const { expenseCategories, incomeCategories, loaded, initializeDefaults, addCategory, updateCategory, deleteCategory } = useCategory();
   const [tab, setTab] = useState('expense');
@@ -43,7 +48,12 @@ export default function CategoryManagement() {
 
   return (
     <div className="page">
-      <h2 className="page-title">{t('categoryManagement')}</h2>
+      <div className="page-header">
+        <button className="back-btn" onClick={() => navigate('/settings')}>
+          <img src={backIcon} alt="" className="back-icon" />
+        </button>
+        <h2 className="page-title">{t('categoryManagement')}</h2>
+      </div>
 
       <div className="tab-bar">
         <button className={`tab-btn ${tab === 'expense' ? 'active' : ''}`} onClick={() => setTab('expense')}>
@@ -94,12 +104,12 @@ export default function CategoryManagement() {
                     className="btn-icon"
                     onClick={() => { setEditingName(name); setEditValue(name); }}
                     title={t('edit')}
-                  >✏️</button>
+                  ><img src={editIcon} alt="" className="action-icon" /></button>
                   <button
                     className="btn-icon"
                     onClick={() => handleDelete(name)}
                     title={t('delete')}
-                  >🗑️</button>
+                  ><img src={removeIcon} alt="" className="action-icon" /></button>
                 </div>
               </>
             )}

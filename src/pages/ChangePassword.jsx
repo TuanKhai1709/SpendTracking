@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useLang } from '../context/LangContext';
+import backIcon from '../../assets/back.png';
 
 export default function ChangePassword() {
+  const navigate = useNavigate();
   const { t } = useLang();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -49,7 +52,12 @@ export default function ChangePassword() {
 
   return (
     <div className="page">
-      <h2 className="page-title">{t('changePassword')}</h2>
+      <div className="page-header">
+        <button className="back-btn" onClick={() => navigate('/settings')}>
+          <img src={backIcon} alt="" className="back-icon" />
+        </button>
+        <h2 className="page-title">{t('changePassword')}</h2>
+      </div>
 
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}

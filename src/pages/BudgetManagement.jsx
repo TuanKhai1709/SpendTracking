@@ -1,9 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
 import { useBudget } from '../context/BudgetContext';
 import { useCategory } from '../context/CategoryContext';
+import removeIcon from '../../assets/remove.png';
+import backIcon from '../../assets/back.png';
 
 export default function BudgetManagement() {
+  const navigate = useNavigate();
   const { t, formatMoney, translateCategory, toUSD, fromUSD, currencySymbol } = useLang();
   const { budgets, addBudget, deleteBudget } = useBudget();
   const { expenseCategories } = useCategory();
@@ -35,7 +39,12 @@ export default function BudgetManagement() {
 
   return (
     <div className="page">
-      <h2 className="page-title">{t('budgeting')}</h2>
+      <div className="page-header">
+        <button className="back-btn" onClick={() => navigate('/settings')}>
+          <img src={backIcon} alt="" className="back-icon" />
+        </button>
+        <h2 className="page-title">{t('budgeting')}</h2>
+      </div>
 
       {!showForm && (
         <button className="btn btn-primary" style={{ marginBottom: 16, width: '100%' }} onClick={() => setShowForm(true)}>
@@ -111,7 +120,7 @@ export default function BudgetManagement() {
                   {formatMoney(b.amount)} | {b.startDate} → {b.endDate}
                 </span>
               </div>
-              <button className="btn-icon" onClick={() => handleDelete(b.id)}>🗑️</button>
+              <button className="btn-icon" onClick={() => handleDelete(b.id)}><img src={removeIcon} alt="" className="action-icon" /></button>
             </div>
           ))
         )}

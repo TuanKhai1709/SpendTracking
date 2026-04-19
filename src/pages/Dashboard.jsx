@@ -9,11 +9,9 @@ import BudgetCard from '../components/BudgetCard';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { t, formatMoney, translateCategory } = useLang();
+  const { t, formatMoney } = useLang();
   const { budgets } = useBudget();
 
-  const [expenseSummary, setExpenseSummary] = useState([]);
-  const [incomeSummary, setIncomeSummary] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
   const [budgetSpent, setBudgetSpent] = useState({});
@@ -32,22 +30,24 @@ export default function Dashboard() {
       const allIncome = [];
       incSnap.forEach((doc) => allIncome.push(doc.data()));
 
-      const expByCategory = {};
+      // Filter for current month only
+      const now = new Date();
+      const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
       let expTotal = 0;
       allExpenses.forEach((d) => {
-        expByCategory[d.category] = (expByCategory[d.category] || 0) + d.amount;
-        expTotal += d.amount;
+        if (d.date && d.date.slice(0, 7) === currentYM) {
+          expTotal += d.amount;
+        }
       });
 
-      const incByCategory = {};
       let incTotal = 0;
       allIncome.forEach((d) => {
-        incByCategory[d.category] = (incByCategory[d.category] || 0) + d.amount;
-        incTotal += d.amount;
+        if (d.date && d.date.slice(0, 7) === currentYM) {
+          incTotal += d.amount;
+        }
       });
 
-      setExpenseSummary(Object.entries(expByCategory).map(([category, total]) => ({ category, total })));
-      setIncomeSummary(Object.entries(incByCategory).map(([category, total]) => ({ category, total })));
       setTotalExpense(expTotal);
       setTotalIncome(incTotal);
 
@@ -94,46 +94,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-
-      <div className="summary-section">
-        <h3>{t('expenseCategories')}</h3>
-        {expenseSummary.length === 0 ? (
-          <p className="empty-text">{t('noExpensesYet')}</p>
-        ) : (
-          <div className="summary-list">
-            {expenseSummary.map((item) => (
-              <div key={item.category} className="summary-item">
-                <span>{translateCategory(item.category)}</span>
-                <span className="amount expense">-{formatMoney(item.total)}</span>
-              </div>
-            ))}
-            <div className="summary-item total">
-              <span>{t('totalExpenses')}</span>
-              <span className="amount expense">-{formatMoney(totalExpense)}</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="summary-section">
-        <h3>{t('incomeCategories')}</h3>
-        {incomeSummary.length === 0 ? (
-          <p className="empty-text">{t('noIncomeYet')}</p>
-        ) : (
-          <div className="summary-list">
-            {incomeSummary.map((item) => (
-              <div key={item.category} className="summary-item">
-                <span>{translateCategory(item.category)}</span>
-                <span className="amount income">+{formatMoney(item.total)}</span>
-              </div>
-            ))}
-            <div className="summary-item total">
-              <span>{t('totalIncome')}</span>
-              <span className="amount income">+{formatMoney(totalIncome)}</span>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

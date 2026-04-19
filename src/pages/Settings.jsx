@@ -28,7 +28,7 @@ export default function Settings() {
         <MenuItem icon={budgetIcon} label={t('budgeting')} onClick={() => navigate('/budgets')} />
         <button className="menu-item" onClick={toggleLang}>
           <span className="menu-item-label">{t('language')}</span>
-          <span className="menu-item-lang-badge">{lang === 'en' ? '🇻🇳' : '🇺🇸'}</span>
+          <span className="menu-item-lang-badge">{lang === 'vi' ? '🇻🇳' : '🇺🇸'}</span>
         </button>
         <button className="menu-item" onClick={toggleTheme}>
           <span className="menu-item-label">{t('darkMode')}</span>
