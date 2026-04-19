@@ -96,6 +96,7 @@ body {
   gap: 12px;
   margin-bottom: 20px;
 }
+
 .page-header .page-title {
   margin-bottom: 0;
 }
@@ -108,6 +109,7 @@ body {
   display: flex;
   align-items: center;
 }
+
 .back-icon {
   width: 24px;
   height: 24px;

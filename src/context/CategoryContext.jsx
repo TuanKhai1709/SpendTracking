@@ -26,8 +26,8 @@ export function CategoryProvider({ children }) {
     try {
       const snap = await getDocs(getColRef());
       if (snap.empty) {
-        setExpenseCategories(DEFAULT_EXPENSE_CATEGORIES);
-        setIncomeCategories(DEFAULT_INCOME_CATEGORIES);
+        await initializeDefaultsInternal();
+        return;
       } else {
         const expCats = [];
         const incCats = [];
@@ -59,10 +59,8 @@ export function CategoryProvider({ children }) {
     }
   }, [user]);
 
-  const initializeDefaults = async () => {
+  const initializeDefaultsInternal = async () => {
     if (!user) return;
-    const snap = await getDocs(getColRef());
-    if (!snap.empty) return;
     const now = Timestamp.now();
     for (const name of DEFAULT_EXPENSE_CATEGORIES) {
       await addDoc(getColRef(), { name, type: 'expense', updatedAt: now });
@@ -70,7 +68,26 @@ export function CategoryProvider({ children }) {
     for (const name of DEFAULT_INCOME_CATEGORIES) {
       await addDoc(getColRef(), { name, type: 'income', updatedAt: now });
     }
-    await fetchCategories();
+    const snap2 = await getDocs(getColRef());
+    const expCats = [];
+    const incCats = [];
+    snap2.forEach((d) => {
+      const data = { id: d.id, ...d.data() };
+      if (data.type === 'expense') expCats.push(data);
+      else incCats.push(data);
+    });
+    expCats.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+    incCats.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+    setExpenseCategories(expCats.map((c) => c.name));
+    setIncomeCategories(incCats.map((c) => c.name));
+    setLoaded(true);
+  };
+
+  const initializeDefaults = async () => {
+    if (!user) return;
+    const snap = await getDocs(getColRef());
+    if (!snap.empty) return;
+    await initializeDefaultsInternal();
   };
 
   const addCategory = async (name, type) => {

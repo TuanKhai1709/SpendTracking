@@ -102,7 +102,7 @@ export default function CategoryManagement() {
                 <div className="category-actions">
                   <button
                     className="btn-icon"
-                    onClick={() => { setEditingName(name); setEditValue(name); }}
+                    onClick={() => { setEditingName(name); setEditValue(translateCategory(name)); }}
                     title={t('edit')}
                   ><img src={editIcon} alt="" className="action-icon" /></button>
                   <button
