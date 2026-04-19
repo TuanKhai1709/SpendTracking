@@ -91,6 +91,40 @@ const translations = {
     catBonus: 'Bonus',
     catTip: 'Tip',
     catInvestment: 'Investment',
+
+    // Settings
+    report: 'Report',
+    categoryManagement: 'Category Management',
+    budgeting: 'Set Budget',
+    language: 'Language',
+    darkMode: 'Dark Mode',
+    changePassword: 'Change Password',
+    logoutAction: 'Logout',
+
+    // Report
+    // (reuses byMonth, byYear, etc.)
+
+    // Category Management
+    enterCategoryName: 'Enter category name',
+
+    // Budget
+    budgets: 'Budgets',
+    addBudget: 'Add Budget',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    noBudgets: 'No budgets set',
+    cancel: 'Cancel',
+
+    // Change Password
+    oldPassword: 'Current Password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm Password',
+    enterOldPassword: 'Enter current password',
+    enterNewPassword: 'Enter new password',
+    confirmNewPassword: 'Confirm new password',
+    passwordMismatch: 'Passwords do not match',
+    passwordChanged: 'Password changed successfully',
+    wrongPassword: 'Current password is incorrect',
   },
   vi: {
     // Nav
@@ -180,6 +214,37 @@ const translations = {
     catBonus: 'Thưởng',
     catTip: 'Tiền tip',
     catInvestment: 'Đầu tư',
+
+    // Settings
+    report: 'Báo cáo',
+    categoryManagement: 'Quản lý danh mục',
+    budgeting: 'Đặt hạn mức',
+    language: 'Ngôn ngữ',
+    darkMode: 'Chế độ tối',
+    changePassword: 'Đổi mật khẩu',
+    logoutAction: 'Đăng xuất',
+
+    // Category Management
+    enterCategoryName: 'Nhập tên danh mục',
+
+    // Budget
+    budgets: 'Hạn mức',
+    addBudget: 'Thêm hạn mức',
+    startDate: 'Ngày bắt đầu',
+    endDate: 'Ngày kết thúc',
+    noBudgets: 'Chưa đặt hạn mức',
+    cancel: 'Hủy',
+
+    // Change Password
+    oldPassword: 'Mật khẩu hiện tại',
+    newPassword: 'Mật khẩu mới',
+    confirmPassword: 'Xác nhận mật khẩu',
+    enterOldPassword: 'Nhập mật khẩu hiện tại',
+    enterNewPassword: 'Nhập mật khẩu mới',
+    confirmNewPassword: 'Xác nhận mật khẩu mới',
+    passwordMismatch: 'Mật khẩu không khớp',
+    passwordChanged: 'Đổi mật khẩu thành công',
+    wrongPassword: 'Mật khẩu hiện tại không đúng',
   },
 };
 

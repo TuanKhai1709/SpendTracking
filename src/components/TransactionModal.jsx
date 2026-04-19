@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLang } from '../context/LangContext';
-
-export const EXPENSE_CATEGORIES = ['Food & Dining', 'Coffee', 'Transportation', 'Shopping', 'Bills', 'Recurring Expenses', 'Recurring Investments', 'Entertainment', 'Healthcare', 'Education', 'Other'];
-export const INCOME_CATEGORIES = ['Salary', 'Bonus', 'Tip', 'Investment', 'Other'];
+import { useCategory } from '../context/CategoryContext';
 
 export default function TransactionModal({ type, transaction, onSave, onClose, onDelete }) {
   const { t, translateCategory, toUSD, fromUSD, currencySymbol } = useLang();
-  const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+  const { expenseCategories, incomeCategories } = useCategory();
+  const categories = type === 'expense' ? expenseCategories : incomeCategories;
   const [form, setForm] = useState({
     title: '',
     category: categories[0],

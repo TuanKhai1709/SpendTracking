@@ -1,5 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { BudgetProvider } from '../context/BudgetContext';
+import { CategoryProvider } from '../context/CategoryContext';
 import Navbar from './Navbar';
 
 export default function PrivateRoute({ children }) {
@@ -14,11 +16,15 @@ export default function PrivateRoute({ children }) {
   }
 
   return (
-    <div className="app-layout">
-      <div className="main-content">
-        {children}
-      </div>
-      <Navbar />
-    </div>
+    <CategoryProvider>
+      <BudgetProvider>
+        <div className="app-layout">
+          <div className="main-content">
+            {children}
+          </div>
+          <Navbar />
+        </div>
+      </BudgetProvider>
+    </CategoryProvider>
   );
 }

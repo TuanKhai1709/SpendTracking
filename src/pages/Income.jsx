@@ -3,11 +3,13 @@ import { collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc,
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
-import TransactionModal, { INCOME_CATEGORIES } from '../components/TransactionModal';
+import { useCategory } from '../context/CategoryContext';
+import TransactionModal from '../components/TransactionModal';
 
 export default function Income() {
   const { user } = useAuth();
   const { t, lang, formatMoney, translateCategory } = useLang();
+  const { incomeCategories: INCOME_CATEGORIES } = useCategory();
   const [incomeList, setIncomeList] = useState([]);
   const now = new Date();
   const [filterYear, setFilterYear] = useState(String(now.getFullYear()));

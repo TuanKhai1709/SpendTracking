@@ -19,6 +19,24 @@
   --nav-height: 64px;
 }
 
+[data-theme="dark"] {
+  --primary: #7B8FF0;
+  --primary-dark: #667EEA;
+  --primary-light: #2A2D3E;
+  --danger: #FC5C65;
+  --danger-light: #3A2020;
+  --success: #26DE81;
+  --success-light: #1A3A2A;
+  --bg: #121212;
+  --card: #1E1E2E;
+  --text: #E0E0E0;
+  --text-secondary: #A0A0B0;
+  --text-light: #666680;
+  --border: #2A2A3A;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -683,4 +701,399 @@ body {
   .chart-container {
     height: 300px;
   }
+}
+
+/* ==================== Nav Icon Image ==================== */
+
+.nav-icon-img {
+  width: 24px;
+  height: 24px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  filter: var(--nav-icon-filter, none);
+}
+
+.nav-item.active .nav-icon-img {
+  opacity: 1;
+}
+
+[data-theme="dark"] .nav-icon-img {
+  filter: invert(1);
+}
+
+/* ==================== Settings / Menu ==================== */
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text);
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background: var(--bg);
+}
+
+.menu-item-label {
+  font-weight: 500;
+}
+
+.menu-item-icon {
+  width: 22px;
+  height: 22px;
+  opacity: 0.6;
+}
+
+[data-theme="dark"] .menu-item-icon {
+  filter: invert(1);
+}
+
+.menu-item-lang-badge {
+  font-size: 1.3rem;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border);
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-switch.on {
+  background: var(--primary);
+}
+
+.toggle-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch.on .toggle-knob {
+  transform: translateX(20px);
+}
+
+/* ==================== Tab Bar ==================== */
+
+.tab-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* ==================== Category Management ==================== */
+
+.category-add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.category-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  outline: none;
+  background: var(--card);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.category-input:focus {
+  border-color: var(--primary);
+}
+
+.btn-sm {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.category-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.category-edit-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+  line-height: 1;
+}
+
+/* ==================== Budget ==================== */
+
+.budget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.budget-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+
+.budget-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.budget-card-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.budget-card-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.budget-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.budget-progress-fill.warning {
+  background: var(--danger);
+}
+
+.budget-card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.budget-percent {
+  font-weight: 600;
+}
+
+.budget-percent.warning {
+  color: var(--danger);
+}
+
+.budget-form-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.budget-form-card .form-group {
+  margin-bottom: 14px;
+}
+
+.budget-form-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.budget-form-card input,
+.budget-form-card select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  outline: none;
+  background: var(--card);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.budget-form-card input:focus,
+.budget-form-card select:focus {
+  border-color: var(--primary);
+}
+
+.budget-manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.budget-manage-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+
+.budget-manage-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.budget-manage-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.budget-manage-detail {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ==================== Settings Form ==================== */
+
+.settings-form {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.settings-form .form-group {
+  margin-bottom: 16px;
+}
+
+.settings-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.settings-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  outline: none;
+  background: var(--card);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.settings-form input:focus {
+  border-color: var(--primary);
+}
+
+.success-message {
+  background: var(--success-light);
+  color: var(--success);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  text-align: center;
 }

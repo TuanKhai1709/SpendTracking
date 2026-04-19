@@ -3,11 +3,13 @@ import { collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc,
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
-import TransactionModal, { EXPENSE_CATEGORIES } from '../components/TransactionModal';
+import { useCategory } from '../context/CategoryContext';
+import TransactionModal from '../components/TransactionModal';
 
 export default function Expenses() {
   const { user } = useAuth();
   const { t, lang, formatMoney, translateCategory } = useLang();
+  const { expenseCategories: EXPENSE_CATEGORIES } = useCategory();
   const [expenses, setExpenses] = useState([]);
   const now = new Date();
   const [filterYear, setFilterYear] = useState(String(now.getFullYear()));
