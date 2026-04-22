@@ -360,6 +360,115 @@ body {
   font-size: 1rem;
 }
 
+/* ==================== Summary Grid (Dashboard) ==================== */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.summary-grid-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-grid-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.summary-grid-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.summary-grid-value.expense { color: var(--danger); }
+.summary-grid-value.income { color: #0ca678; }
+.summary-grid-value.invest { color: var(--primary); }
+.summary-grid-value.positive { color: #0ca678; }
+.summary-grid-value.negative { color: var(--danger); }
+
+.summary-grid-card.invest { border-left: 3px solid var(--primary); }
+.summary-grid-card.expense { border-left: 3px solid var(--danger); }
+.summary-grid-card.income { border-left: 3px solid #0ca678; }
+.summary-grid-card.balance { border-left: 3px solid #888; }
+.summary-grid-card.balance.positive { border-left-color: #0ca678; }
+.summary-grid-card.balance.negative { border-left-color: var(--danger); }
+
+/* ==================== Captcha ==================== */
+
+.captcha-group {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 4px;
+}
+
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.captcha-question {
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.captcha-input {
+  width: 70px !important;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 1rem !important;
+  padding: 8px !important;
+}
+
+.captcha-refresh {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.captcha-refresh:hover { background: var(--bg); }
+
+.captcha-error {
+  display: block;
+  color: var(--danger);
+  font-size: 0.82rem;
+  margin-top: 6px;
+}
+
+.captcha-hint {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  margin-top: 6px;
+}
+}
+
 .balance-amount {
   font-size: 1.3rem;
   font-weight: 700;

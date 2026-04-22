@@ -14,6 +14,7 @@ export default function Dashboard() {
 
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
+  const [recurringInvest, setRecurringInvest] = useState(0);
   const [budgetSpent, setBudgetSpent] = useState({});
 
   useEffect(() => {
@@ -35,9 +36,11 @@ export default function Dashboard() {
       const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
       let expTotal = 0;
+      let riTotal = 0;
       allExpenses.forEach((d) => {
         if (d.date && d.date.slice(0, 7) === currentYM) {
           expTotal += d.amount;
+          if (d.category === 'Recurring Investments') riTotal += d.amount;
         }
       });
 
@@ -50,6 +53,7 @@ export default function Dashboard() {
 
       setTotalExpense(expTotal);
       setTotalIncome(incTotal);
+      setRecurringInvest(riTotal);
 
       const spent = {};
       budgets.forEach((b) => {
@@ -72,16 +76,25 @@ export default function Dashboard() {
     <div className="page">
       <WeekChart />
 
-      <div
-        className="balance-card"
-        style={{
-          background: balance >= 0 ? 'var(--success-light)' : 'var(--danger-light)',
-        }}
-      >
-        <span className="balance-label">{t('totalBalance')}</span>
-        <span className={`balance-amount ${balance >= 0 ? 'positive' : 'negative'}`}>
-          {balance >= 0 ? '+' : '-'}{formatMoney(Math.abs(balance))}
-        </span>
+      <div className="summary-grid">
+        <div className="summary-grid-card invest">
+          <span className="summary-grid-label">{t('catRecurringInvestments')}</span>
+          <span className="summary-grid-value invest">{formatMoney(recurringInvest)}</span>
+        </div>
+        <div className="summary-grid-card expense">
+          <span className="summary-grid-label">{t('totalExpenses')}</span>
+          <span className="summary-grid-value expense">-{formatMoney(totalExpense)}</span>
+        </div>
+        <div className="summary-grid-card income">
+          <span className="summary-grid-label">{t('totalIncome')}</span>
+          <span className="summary-grid-value income">+{formatMoney(totalIncome)}</span>
+        </div>
+        <div className={`summary-grid-card balance ${balance >= 0 ? 'positive' : 'negative'}`}>
+          <span className="summary-grid-label">{t('totalBalance')}</span>
+          <span className={`summary-grid-value ${balance >= 0 ? 'positive' : 'negative'}`}>
+            {balance >= 0 ? '+' : '-'}{formatMoney(Math.abs(balance))}
+          </span>
+        </div>
       </div>
 
       {budgets.length > 0 && (

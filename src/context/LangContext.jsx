@@ -30,6 +30,12 @@ const translations = {
     passwordPlaceholder: 'Enter password',
     passwordMinPlaceholder: 'At least 6 characters',
     usernamePlaceholder: 'johndoe',
+    captchaLabel: 'Security Check',
+    captchaError: 'Incorrect answer, please try again',
+    captchaHint: 'Failed {n} times. Please solve the math challenge to continue.',
+    refreshCaptcha: 'Refresh',
+    tooManyAttempts: 'Too many failed attempts. Please wait 60 seconds.',
+    accountLocked: 'Account temporarily locked. Try again in {s} seconds.',
 
     // Dashboard
     incomeVsExpenses: 'Income vs Expenses',
@@ -164,6 +170,12 @@ const translations = {
     passwordPlaceholder: 'Nhập mật khẩu',
     passwordMinPlaceholder: 'Ít nhất 6 ký tự',
     usernamePlaceholder: 'nguyenvana',
+    captchaLabel: 'Xác minh bảo mật',
+    captchaError: 'Kết quả không đúng, vui lòng thử lại',
+    captchaHint: 'Đăng nhập sai {n} lần. Giải phép toán để tiếp tục.',
+    refreshCaptcha: 'Làm mới',
+    tooManyAttempts: 'Quá nhiều lần thự không thành công. Vui lòng chờ 60 giây.',
+    accountLocked: 'Tài khoản tạm khóa. Thử lại sau {s} giây.',
 
     // Dashboard
     incomeVsExpenses: 'Thu nhập & Chi tiêu',
