@@ -50,14 +50,16 @@ export default function Report() {
       const expByCategory = {};
       let expTotal = 0;
       filteredExp.forEach((d) => {
-        expByCategory[d.category] = (expByCategory[d.category] || 0) + d.amount;
+        const key = translateCategory(d.category);
+        expByCategory[key] = (expByCategory[key] || 0) + d.amount;
         expTotal += d.amount;
       });
 
       const incByCategory = {};
       let incTotal = 0;
       filteredInc.forEach((d) => {
-        incByCategory[d.category] = (incByCategory[d.category] || 0) + d.amount;
+        const key = translateCategory(d.category);
+        incByCategory[key] = (incByCategory[key] || 0) + d.amount;
         incTotal += d.amount;
       });
 
@@ -125,7 +127,7 @@ export default function Report() {
           <div className="summary-list">
             {expenseSummary.map((item) => (
               <div key={item.category} className="summary-item">
-                <span>{translateCategory(item.category)}</span>
+                <span>{item.category}</span>
                 <span className="amount expense">-{formatMoney(item.total)}</span>
               </div>
             ))}
@@ -145,7 +147,7 @@ export default function Report() {
           <div className="summary-list">
             {incomeSummary.map((item) => (
               <div key={item.category} className="summary-item">
-                <span>{translateCategory(item.category)}</span>
+                <span>{item.category}</span>
                 <span className="amount income">+{formatMoney(item.total)}</span>
               </div>
             ))}

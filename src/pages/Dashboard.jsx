@@ -9,7 +9,7 @@ import BudgetCard from '../components/BudgetCard';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { t, formatMoney } = useLang();
+  const { t, formatMoney, translateCategory } = useLang();
   const { budgets } = useBudget();
 
   const [totalExpense, setTotalExpense] = useState(0);
@@ -40,7 +40,8 @@ export default function Dashboard() {
       allExpenses.forEach((d) => {
         if (d.date && d.date.slice(0, 7) === currentYM) {
           expTotal += d.amount;
-          if (d.category === 'Recurring Investments') riTotal += d.amount;
+          const catKey = translateCategory(d.category);
+          if (catKey === translateCategory('Recurring Investments')) riTotal += d.amount;
         }
       });
 
@@ -57,10 +58,11 @@ export default function Dashboard() {
 
       const spent = {};
       budgets.forEach((b) => {
+        const budgetCatKey = b.category === 'all' ? 'all' : translateCategory(b.category);
         const filtered = allExpenses.filter((e) => {
           const inRange = e.date >= b.startDate && e.date <= b.endDate;
           if (b.category === 'all') return inRange;
-          return inRange && e.category === b.category;
+          return inRange && translateCategory(e.category) === budgetCatKey;
         });
         spent[b.id] = filtered.reduce((s, e) => s + e.amount, 0);
       });

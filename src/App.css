@@ -393,18 +393,49 @@ body {
   color: var(--text);
 }
 
-.summary-grid-value.expense { color: var(--danger); }
-.summary-grid-value.income { color: #0ca678; }
-.summary-grid-value.invest { color: var(--primary); }
-.summary-grid-value.positive { color: #0ca678; }
-.summary-grid-value.negative { color: var(--danger); }
+.summary-grid-value.expense {
+  color: var(--danger);
+}
 
-.summary-grid-card.invest { border-left: 3px solid var(--primary); }
-.summary-grid-card.expense { border-left: 3px solid var(--danger); }
-.summary-grid-card.income { border-left: 3px solid #0ca678; }
-.summary-grid-card.balance { border-left: 3px solid #888; }
-.summary-grid-card.balance.positive { border-left-color: #0ca678; }
-.summary-grid-card.balance.negative { border-left-color: var(--danger); }
+.summary-grid-value.income {
+  color: #0ca678;
+}
+
+.summary-grid-value.invest {
+  color: var(--primary);
+}
+
+.summary-grid-value.positive {
+  color: #0ca678;
+}
+
+.summary-grid-value.negative {
+  color: var(--danger);
+}
+
+.summary-grid-card.invest {
+  border-left: 3px solid var(--primary);
+}
+
+.summary-grid-card.expense {
+  border-left: 3px solid var(--danger);
+}
+
+.summary-grid-card.income {
+  border-left: 3px solid #0ca678;
+}
+
+.summary-grid-card.balance {
+  border-left: 3px solid #888;
+}
+
+.summary-grid-card.balance.positive {
+  border-left-color: #0ca678;
+}
+
+.summary-grid-card.balance.negative {
+  border-left-color: var(--danger);
+}
 
 /* ==================== Captcha ==================== */
 
@@ -453,7 +484,9 @@ body {
   flex-shrink: 0;
 }
 
-.captcha-refresh:hover { background: var(--bg); }
+.captcha-refresh:hover {
+  background: var(--bg);
+}
 
 .captcha-error {
   display: block;
