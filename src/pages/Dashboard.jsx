@@ -9,19 +9,38 @@ import BudgetCard from '../components/BudgetCard';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { t, formatMoney, translateCategory } = useLang();
+  const { t, lang, formatMoney, translateCategory } = useLang();
   const { budgets } = useBudget();
 
+  const now = new Date();
+  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  const [selectedMonth, setSelectedMonth] = useState('');
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
   const [recurringInvest, setRecurringInvest] = useState(0);
   const [budgetSpent, setBudgetSpent] = useState({});
 
-  useEffect(() => {
-    if (user) fetchData();
-  }, [user, budgets]);
+  const activeYM = selectedMonth || currentYM;
 
-  const fetchData = async () => {
+  const getPastMonths = () => {
+    const opts = [];
+    for (let i = 1; i <= 11; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = lang === 'vi'
+        ? `Tháng ${d.getMonth() + 1}/${d.getFullYear()}`
+        : d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+      opts.push({ value: ym, label });
+    }
+    return opts;
+  };
+
+  useEffect(() => {
+    if (user) fetchData(activeYM);
+  }, [user, budgets, activeYM]);
+
+  const fetchData = async (ym) => {
     try {
       const expSnap = await getDocs(collection(db, 'users', user.uid, 'expenses'));
       const incSnap = await getDocs(collection(db, 'users', user.uid, 'income'));
@@ -31,14 +50,10 @@ export default function Dashboard() {
       const allIncome = [];
       incSnap.forEach((doc) => allIncome.push(doc.data()));
 
-      // Filter for current month only
-      const now = new Date();
-      const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
       let expTotal = 0;
       let riTotal = 0;
       allExpenses.forEach((d) => {
-        if (d.date && d.date.slice(0, 7) === currentYM) {
+        if (d.date && d.date.slice(0, 7) === ym) {
           expTotal += d.amount;
           const catKey = translateCategory(d.category);
           if (catKey === translateCategory('Recurring Investments')) riTotal += d.amount;
@@ -47,7 +62,7 @@ export default function Dashboard() {
 
       let incTotal = 0;
       allIncome.forEach((d) => {
-        if (d.date && d.date.slice(0, 7) === currentYM) {
+        if (d.date && d.date.slice(0, 7) === ym) {
           incTotal += d.amount;
         }
       });
@@ -77,6 +92,19 @@ export default function Dashboard() {
   return (
     <div className="page">
       <WeekChart />
+
+      <div className="month-select-bar">
+        <select
+          className="month-select"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+        >
+          <option value="">{t('current')}</option>
+          {getPastMonths().map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
 
       <div className="summary-grid">
         <div className="summary-grid-card invest">

@@ -136,6 +136,7 @@ const translations = {
     last7Days: '7 Days',
     last14Days: '14 Days',
     thisMonth: 'This Month',
+    current: 'Current',
 
     // Recurring
     recurringExpenses: 'Recurring Expenses',
@@ -273,6 +274,7 @@ const translations = {
     last7Days: '7 ngày',
     last14Days: '14 ngày',
     thisMonth: 'Tháng này',
+    current: 'Hiện tại',
 
     // Recurring
     recurringExpenses: 'Chi phí định kì',
