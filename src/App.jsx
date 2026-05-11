@@ -2,6 +2,10 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { BudgetProvider } from './context/BudgetContext';
+import { CategoryProvider } from './context/CategoryContext';
+import { RecurringProvider } from './context/RecurringContext';
+import { TransactionCacheProvider } from './context/TransactionCacheContext';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -17,6 +21,28 @@ import RecurringExpenses from './pages/RecurringExpenses';
 import './App.css';
 
 function App() {
+  const protectedRoutes = (
+    <TransactionCacheProvider>
+      <CategoryProvider>
+        <BudgetProvider>
+          <RecurringProvider>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/income" element={<Income />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/report" element={<Report />} />
+              <Route path="/categories" element={<CategoryManagement />} />
+              <Route path="/budgets" element={<BudgetManagement />} />
+              <Route path="/change-password" element={<ChangePassword />} />
+              <Route path="/recurring" element={<RecurringExpenses />} />
+            </Routes>
+          </RecurringProvider>
+        </BudgetProvider>
+      </CategoryProvider>
+    </TransactionCacheProvider>
+  );
+
   return (
     <ThemeProvider>
       <LangProvider>
@@ -25,15 +51,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/expenses" element={<PrivateRoute><Expenses /></PrivateRoute>} />
-              <Route path="/income" element={<PrivateRoute><Income /></PrivateRoute>} />
-              <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-              <Route path="/report" element={<PrivateRoute><Report /></PrivateRoute>} />
-              <Route path="/categories" element={<PrivateRoute><CategoryManagement /></PrivateRoute>} />
-              <Route path="/budgets" element={<PrivateRoute><BudgetManagement /></PrivateRoute>} />
-              <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
-              <Route path="/recurring" element={<PrivateRoute><RecurringExpenses /></PrivateRoute>} />
+              <Route path="/*" element={<PrivateRoute>{protectedRoutes}</PrivateRoute>} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </HashRouter>

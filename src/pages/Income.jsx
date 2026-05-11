@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useCategory } from '../context/CategoryContext';
+import { useTransactionCache } from '../context/TransactionCacheContext';
 import TransactionModal from '../components/TransactionModal';
 
 export default function Income() {
   const { user } = useAuth();
   const { t, lang, formatMoney, translateCategory } = useLang();
   const { incomeCategories: INCOME_CATEGORIES } = useCategory();
+  const { getTransactionsForMonth, upsertTransaction, removeTransaction } = useTransactionCache();
   const [incomeList, setIncomeList] = useState([]);
   const now = new Date();
   const [filterYear, setFilterYear] = useState(String(now.getFullYear()));
@@ -57,14 +59,12 @@ export default function Income() {
 
   const fetchIncome = async () => {
     try {
-      const q = query(getColRef(), orderBy('date', 'desc'));
-      const snap = await getDocs(q);
-      let items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      let items = await getTransactionsForMonth('income', selectedYM);
 
-      items = items.filter((e) => e.date.slice(0, 7) === selectedYM);
       if (filterDay) {
-        items = items.filter((e) => e.date === `${selectedYM}-${filterDay}`);
+        items = items.filter((income) => income.date === `${selectedYM}-${filterDay}`);
       }
+
       if (filterCategory) {
         items = items.filter((e) => e.category === filterCategory);
       }
@@ -77,21 +77,31 @@ export default function Income() {
   const handleSave = async (data) => {
     try {
       if (editItem) {
+        const updatedItem = {
+          ...editItem,
+          title: data.title,
+          category: data.category,
+          amount: data.amount,
+          date: data.date,
+        };
         await updateDoc(doc(db, 'users', user.uid, 'income', editItem.id), {
           title: data.title,
           category: data.category,
           amount: data.amount,
           date: data.date,
         });
+        upsertTransaction('income', updatedItem, editItem);
       } else {
-        await addDoc(getColRef(), {
+        const newIncome = {
           ...data,
           createdAt: Timestamp.now(),
-        });
+        };
+        const docRef = await addDoc(getColRef(), newIncome);
+        upsertTransaction('income', { id: docRef.id, ...newIncome });
       }
       setShowModal(false);
       setEditItem(null);
-      fetchIncome();
+      await fetchIncome();
     } catch (err) {
       alert(t('failedToSave'));
     }
@@ -100,10 +110,16 @@ export default function Income() {
   const handleDelete = async (id) => {
     if (window.confirm(t('deleteIncomeConfirm'))) {
       try {
+        const itemToRemove = editItem && editItem.id === id
+          ? editItem
+          : incomeList.find((income) => income.id === id);
         await deleteDoc(doc(db, 'users', user.uid, 'income', id));
+        if (itemToRemove) {
+          removeTransaction('income', itemToRemove);
+        }
         setShowModal(false);
         setEditItem(null);
-        fetchIncome();
+        await fetchIncome();
       } catch (err) {
         alert(t('failedToDelete'));
       }

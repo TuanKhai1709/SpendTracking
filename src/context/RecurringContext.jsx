@@ -2,11 +2,13 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from './AuthContext';
+import { useTransactionCache } from './TransactionCacheContext';
 
 const RecurringContext = createContext(null);
 
 export function RecurringProvider({ children }) {
   const { user } = useAuth();
+  const { upsertTransaction } = useTransactionCache();
   const [recurringItems, setRecurringItems] = useState([]);
 
   const getColRef = () => collection(db, 'users', user.uid, 'recurring');
@@ -37,12 +39,14 @@ export function RecurringProvider({ children }) {
       for (const d of snap.docs) {
         const item = d.data();
         if (item.dayOfMonth === todayDay && item.lastRunMonth !== currentYM) {
-          await addDoc(getExpenseColRef(), {
+          const newExpense = {
             title: item.title,
             amount: item.amount,
             category: 'Recurring Expenses',
             date: todayStr,
-          });
+          };
+          const expenseRef = await addDoc(getExpenseColRef(), newExpense);
+          upsertTransaction('expense', { id: expenseRef.id, ...newExpense });
           await updateDoc(doc(db, 'users', user.uid, 'recurring', d.id), {
             lastRunMonth: currentYM,
           });

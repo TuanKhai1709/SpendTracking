@@ -1,9 +1,8 @@
 ﻿import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useBudget } from '../context/BudgetContext';
+import { useTransactionCache } from '../context/TransactionCacheContext';
 import WeekChart from '../components/WeekChart';
 import BudgetCard from '../components/BudgetCard';
 
@@ -11,6 +10,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { t, lang, formatMoney, translateCategory } = useLang();
   const { budgets } = useBudget();
+  const { getTransactionsForMonth, getTransactionsForRange, formatDate } = useTransactionCache();
 
   const now = new Date();
   const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -42,18 +42,15 @@ export default function Dashboard() {
 
   const fetchData = async (ym) => {
     try {
-      const expSnap = await getDocs(collection(db, 'users', user.uid, 'expenses'));
-      const incSnap = await getDocs(collection(db, 'users', user.uid, 'income'));
-
-      const allExpenses = [];
-      expSnap.forEach((doc) => allExpenses.push(doc.data()));
-      const allIncome = [];
-      incSnap.forEach((doc) => allIncome.push(doc.data()));
+      const [allExpenses, allIncome] = await Promise.all([
+        getTransactionsForMonth('expense', ym),
+        getTransactionsForMonth('income', ym),
+      ]);
 
       let expTotal = 0;
       let riTotal = 0;
       allExpenses.forEach((d) => {
-        if (d.date && d.date.slice(0, 7) === ym) {
+        if (d.date) {
           expTotal += d.amount;
           const catKey = translateCategory(d.category);
           if (catKey === translateCategory('Recurring Investments')) riTotal += d.amount;
@@ -62,7 +59,7 @@ export default function Dashboard() {
 
       let incTotal = 0;
       allIncome.forEach((d) => {
-        if (d.date && d.date.slice(0, 7) === ym) {
+        if (d.date) {
           incTotal += d.amount;
         }
       });
@@ -71,17 +68,19 @@ export default function Dashboard() {
       setTotalIncome(incTotal);
       setRecurringInvest(riTotal);
 
-      const spent = {};
-      budgets.forEach((b) => {
+      const spentEntries = await Promise.all(budgets.map(async (b) => {
+        const endDate = new Date(`${b.endDate}T00:00:00`);
+        endDate.setDate(endDate.getDate() + 1);
+        const budgetExpenses = await getTransactionsForRange('expense', b.startDate, formatDate(endDate));
         const budgetCatKey = b.category === 'all' ? 'all' : translateCategory(b.category);
-        const filtered = allExpenses.filter((e) => {
+        const filtered = budgetExpenses.filter((e) => {
           const inRange = e.date >= b.startDate && e.date <= b.endDate;
           if (b.category === 'all') return inRange;
           return inRange && translateCategory(e.category) === budgetCatKey;
         });
-        spent[b.id] = filtered.reduce((s, e) => s + e.amount, 0);
-      });
-      setBudgetSpent(spent);
+        return [b.id, filtered.reduce((sum, expense) => sum + expense.amount, 0)];
+      }));
+      setBudgetSpent(Object.fromEntries(spentEntries));
     } catch (err) {
       console.error('Failed to fetch dashboard data');
     }

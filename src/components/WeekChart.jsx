@@ -10,11 +10,10 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Bar } from 'react-chartjs-2';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTransactionCache } from '../context/TransactionCacheContext';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -22,6 +21,7 @@ export default function WeekChart() {
   const { user } = useAuth();
   const { t, formatMoney, lang, EXCHANGE_RATE } = useLang();
   const { dark } = useTheme();
+  const { getTransactionsForRange } = useTransactionCache();
   const [chartLabels, setChartLabels] = useState([]);
   const [chartIncomeData, setChartIncomeData] = useState([]);
   const [chartExpenseData, setChartExpenseData] = useState([]);
@@ -33,33 +33,40 @@ export default function WeekChart() {
 
   const fetchChartData = async () => {
     try {
-      const expSnap = await getDocs(collection(db, 'users', user.uid, 'expenses'));
-      const incSnap = await getDocs(collection(db, 'users', user.uid, 'income'));
-
-      const allExpenses = [];
-      expSnap.forEach((doc) => allExpenses.push(doc.data()));
-      const allIncome = [];
-      incSnap.forEach((doc) => allIncome.push(doc.data()));
-
       const today = new Date();
       let days = [];
+      let rangeStart = '';
+      let rangeEnd = '';
 
       if (range === 'month') {
         const year = today.getFullYear();
         const month = today.getMonth();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
+        rangeStart = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+        rangeEnd = `${year}-${String(month + 2).padStart(2, '0')}-01`;
         for (let i = 1; i <= daysInMonth; i++) {
           const d = new Date(year, month, i);
           days.push(d.toISOString().split('T')[0]);
         }
       } else {
         const numDays = range === '14d' ? 14 : 7;
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - (numDays - 1));
+        rangeStart = startDate.toISOString().split('T')[0];
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        rangeEnd = tomorrow.toISOString().split('T')[0];
         for (let i = numDays - 1; i >= 0; i--) {
           const d = new Date(today);
           d.setDate(d.getDate() - i);
           days.push(d.toISOString().split('T')[0]);
         }
       }
+
+      const [allExpenses, allIncome] = await Promise.all([
+        getTransactionsForRange('expense', rangeStart, rangeEnd),
+        getTransactionsForRange('income', rangeStart, rangeEnd),
+      ]);
 
       const dayNames = lang === 'vi'
         ? ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']

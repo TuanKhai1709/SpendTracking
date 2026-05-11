@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useCategory } from '../context/CategoryContext';
+import { useTransactionCache } from '../context/TransactionCacheContext';
 import TransactionModal from '../components/TransactionModal';
 
 export default function Expenses() {
   const { user } = useAuth();
   const { t, lang, formatMoney, translateCategory } = useLang();
   const { expenseCategories: EXPENSE_CATEGORIES } = useCategory();
+  const { getTransactionsForMonth, upsertTransaction, removeTransaction } = useTransactionCache();
   const [expenses, setExpenses] = useState([]);
   const now = new Date();
   const [filterYear, setFilterYear] = useState(String(now.getFullYear()));
@@ -59,16 +61,12 @@ export default function Expenses() {
 
   const fetchExpenses = async () => {
     try {
-      const q = query(getColRef(), orderBy('date', 'desc'));
-      const snap = await getDocs(q);
-      let items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      let items = await getTransactionsForMonth('expense', selectedYM);
 
-      // Filter by month
-      items = items.filter((e) => e.date.slice(0, 7) === selectedYM);
-      // Then filter by specific day if selected
       if (filterDay) {
-        items = items.filter((e) => e.date === `${selectedYM}-${filterDay}`);
+        items = items.filter((expense) => expense.date === `${selectedYM}-${filterDay}`);
       }
+
       if (filterCategory) {
         items = items.filter((e) => e.category === filterCategory);
       }
@@ -81,21 +79,31 @@ export default function Expenses() {
   const handleSave = async (data) => {
     try {
       if (editItem) {
+        const updatedItem = {
+          ...editItem,
+          title: data.title,
+          category: data.category,
+          amount: data.amount,
+          date: data.date,
+        };
         await updateDoc(doc(db, 'users', user.uid, 'expenses', editItem.id), {
           title: data.title,
           category: data.category,
           amount: data.amount,
           date: data.date,
         });
+        upsertTransaction('expense', updatedItem, editItem);
       } else {
-        await addDoc(getColRef(), {
+        const newExpense = {
           ...data,
           createdAt: Timestamp.now(),
-        });
+        };
+        const docRef = await addDoc(getColRef(), newExpense);
+        upsertTransaction('expense', { id: docRef.id, ...newExpense });
       }
       setShowModal(false);
       setEditItem(null);
-      fetchExpenses();
+      await fetchExpenses();
     } catch (err) {
       alert(t('failedToSave'));
     }
@@ -104,10 +112,16 @@ export default function Expenses() {
   const handleDelete = async (id) => {
     if (window.confirm(t('deleteExpenseConfirm'))) {
       try {
+        const itemToRemove = editItem && editItem.id === id
+          ? editItem
+          : expenses.find((expense) => expense.id === id);
         await deleteDoc(doc(db, 'users', user.uid, 'expenses', id));
+        if (itemToRemove) {
+          removeTransaction('expense', itemToRemove);
+        }
         setShowModal(false);
         setEditItem(null);
-        fetchExpenses();
+        await fetchExpenses();
       } catch (err) {
         alert(t('failedToDelete'));
       }

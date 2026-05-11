@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import { useTransactionCache } from '../context/TransactionCacheContext';
 import backIcon from '../../assets/back.png';
 
 export default function Report() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t, formatMoney, translateCategory, lang } = useLang();
+  const { getTransactionsForMonth, getTransactionsForRange } = useTransactionCache();
   const [mode, setMode] = useState('month');
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(String(now.getFullYear()));
@@ -32,24 +32,19 @@ export default function Report() {
 
   const fetchReport = async () => {
     try {
-      const expSnap = await getDocs(collection(db, 'users', user.uid, 'expenses'));
-      const incSnap = await getDocs(collection(db, 'users', user.uid, 'income'));
-
-      const allExpenses = [];
-      expSnap.forEach((doc) => allExpenses.push(doc.data()));
-      const allIncome = [];
-      incSnap.forEach((doc) => allIncome.push(doc.data()));
-
-      const filterFn = mode === 'month'
-        ? (d) => d.date.slice(0, 7) === `${selectedYear}-${selectedMonth}`
-        : (d) => d.date.slice(0, 4) === selectedYear;
-
-      const filteredExp = allExpenses.filter(filterFn);
-      const filteredInc = allIncome.filter(filterFn);
+      const [allExpenses, allIncome] = mode === 'month'
+        ? await Promise.all([
+          getTransactionsForMonth('expense', `${selectedYear}-${selectedMonth}`),
+          getTransactionsForMonth('income', `${selectedYear}-${selectedMonth}`),
+        ])
+        : await Promise.all([
+          getTransactionsForRange('expense', `${selectedYear}-01-01`, `${Number(selectedYear) + 1}-01-01`),
+          getTransactionsForRange('income', `${selectedYear}-01-01`, `${Number(selectedYear) + 1}-01-01`),
+        ]);
 
       const expByCategory = {};
       let expTotal = 0;
-      filteredExp.forEach((d) => {
+      allExpenses.forEach((d) => {
         const key = translateCategory(d.category);
         expByCategory[key] = (expByCategory[key] || 0) + d.amount;
         expTotal += d.amount;
@@ -57,7 +52,7 @@ export default function Report() {
 
       const incByCategory = {};
       let incTotal = 0;
-      filteredInc.forEach((d) => {
+      allIncome.forEach((d) => {
         const key = translateCategory(d.category);
         incByCategory[key] = (incByCategory[key] || 0) + d.amount;
         incTotal += d.amount;
