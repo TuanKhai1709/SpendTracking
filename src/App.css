@@ -62,15 +62,11 @@ body {
 .app-layout {
   min-height: 100vh;
   padding-bottom: var(--nav-height);
-  background-image: linear-gradient(rgba(255,255,255,0.83), rgba(255,255,255,0.83)), url('../assets/background.webp');
+  background-image: url('../assets/background.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   background-repeat: no-repeat;
-}
-
-[data-theme="dark"] .app-layout {
-  background-image: linear-gradient(rgba(18,18,18,0.87), rgba(18,18,18,0.87)), url('../assets/background.webp');
 }
 
 .main-content,
@@ -143,7 +139,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background-image: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38)), url('../assets/background.webp');
+  background-image: linear-gradient(rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.38)), url('../assets/background.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -439,17 +435,17 @@ body {
   font-size: 2.4rem;
   font-weight: 800;
   color: #fff;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   margin-bottom: 10px;
   letter-spacing: -0.5px;
 }
 
 .landing-tagline {
   font-size: 1rem;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   font-style: italic;
   margin-bottom: 48px;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .landing-actions {
@@ -466,7 +462,7 @@ body {
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 2px solid rgba(255,255,255,0.8);
+  border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 50px;
   color: #fff;
   font-size: 1rem;
@@ -477,15 +473,15 @@ body {
 }
 
 .landing-btn-signin:hover {
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
 .landing-btn-signup {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.92);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 0.95rem;
   font-style: italic;
   cursor: pointer;
