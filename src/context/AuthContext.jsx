@@ -6,10 +6,10 @@ import {
   updateProfile,
   signOut,
   GoogleAuthProvider,
-  signInWithPopup,
   sendPasswordResetEmail,
   sendEmailVerification,
   signInWithRedirect,
+  getRedirectResult,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -21,6 +21,11 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Handle redirect result from Google sign-in
+    getRedirectResult(auth).catch((error) => {
+      console.error('Google redirect error:', error);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser({
@@ -47,14 +52,9 @@ export function AuthProvider({ children }) {
   };
 
   const loginWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-        await signInWithRedirect(auth, googleProvider);
-      }
-      throw error;
-    }
+    await signInWithRedirect(auth, googleProvider);
+    // Page will redirect to Google, then come back.
+    // onAuthStateChanged will fire when the user is signed in.
   };
 
   const register = async (username, email, password) => {
