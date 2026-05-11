@@ -72,6 +72,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <button className="auth-card-back" onClick={() => navigate('/login')} aria-label="Back">←</button>
         <div className="auth-card-header">
           <div className="auth-card-icon">✨</div>
         </div>
