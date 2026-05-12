@@ -21,8 +21,7 @@ export default function Landing() {
     <div className="landing-page" style={{ backgroundImage: `url(${bgImage})` }}>
       <div className="landing-overlay" />
       <div className="landing-content">
-        <h1 className="landing-title">{t('appName')}</h1>
-        <p className="landing-tagline">{t('tagline')}</p>
+        <h1 className="landing-title">SpendTracker</h1>
         <div className="landing-actions">
           <button
             className="landing-btn-signin"
@@ -34,7 +33,7 @@ export default function Landing() {
             className="landing-btn-signup"
             onClick={() => navigate('/register')}
           >
-            {t('signUp')}
+            {t('startNewAccount')}
           </button>
         </div>
       </div>

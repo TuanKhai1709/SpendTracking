@@ -92,12 +92,18 @@ export default function Login() {
     setError('');
     setGoogleLoading(true);
     try {
-      await loginWithGoogle();
-      navigate('/');
+      const result = await loginWithGoogle();
+      if (result) {
+        // Popup succeeded — navigate into app
+        navigate('/');
+      }
+      // If result is null → redirect flow started, page will navigate away automatically
     } catch (err) {
       console.error('Google login error:', err);
-      setError(err.message || 'Failed to sign in with Google');
-    } finally {
+      const msg = err.code === 'auth/unauthorized-domain'
+        ? 'This domain is not authorized in Firebase. Please contact support.'
+        : (err.message || 'Failed to sign in with Google');
+      setError(msg);
       setGoogleLoading(false);
     }
   };

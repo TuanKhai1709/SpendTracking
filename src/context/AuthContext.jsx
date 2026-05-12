@@ -6,6 +6,7 @@ import {
   updateProfile,
   signOut,
   GoogleAuthProvider,
+  signInWithPopup,
   sendPasswordResetEmail,
   sendEmailVerification,
   signInWithRedirect,
@@ -52,9 +53,22 @@ export function AuthProvider({ children }) {
   };
 
   const loginWithGoogle = async () => {
-    await signInWithRedirect(auth, googleProvider);
-    // Page will redirect to Google, then come back.
-    // onAuthStateChanged will fire when the user is signed in.
+    try {
+      // Try popup first (works in most browsers)
+      const result = await signInWithPopup(auth, googleProvider);
+      return result;
+    } catch (error) {
+      // If popup is blocked, fall back to redirect
+      if (
+        error.code === 'auth/popup-blocked' ||
+        error.code === 'auth/popup-closed-by-user' ||
+        error.code === 'auth/cancelled-popup-request'
+      ) {
+        signInWithRedirect(auth, googleProvider); // page will navigate away
+        return null;
+      }
+      throw error;
+    }
   };
 
   const register = async (username, email, password) => {
