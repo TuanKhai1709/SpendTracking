@@ -22,6 +22,7 @@ export default function Landing() {
       <div className="landing-overlay" />
       <div className="landing-content">
         <h1 className="landing-title">SpendTracker</h1>
+        <p className="landing-subtitle">The best app for your plants</p>
         <div className="landing-actions">
           <button
             className="landing-btn-signin"
