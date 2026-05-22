@@ -1,4 +1,4 @@
-# 💸 SpendTracker
+# 💸 SpendTracking
 
 > A **mobile-first personal finance web app** built with React and Firebase.  
 > Track your income & expenses, set budgets, analyze spending patterns — all synced to the cloud in real time.
