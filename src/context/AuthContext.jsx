@@ -34,6 +34,9 @@ export function AuthProvider({ children }) {
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           emailVerified: firebaseUser.emailVerified,
+          photoURL: firebaseUser.photoURL || null,
+          creationTime: firebaseUser.metadata?.creationTime || null,
+          isGoogleUser: firebaseUser.providerData?.[0]?.providerId === 'google.com',
         });
       } else {
         setUser(null);
@@ -80,6 +83,9 @@ export function AuthProvider({ children }) {
       email: cred.user.email,
       displayName: username,
       emailVerified: cred.user.emailVerified,
+      photoURL: cred.user.photoURL || null,
+      creationTime: cred.user.metadata?.creationTime || null,
+      isGoogleUser: false,
     });
   };
 

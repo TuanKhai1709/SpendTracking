@@ -10,12 +10,15 @@ import expenseIcon from '../../assets/expense.png';
 import darkmodeIcon from '../../assets/darkmode.png';
 import passwordIcon from '../../assets/password.png';
 import logoutIcon from '../../assets/log-out.png';
+import defaultAvatar from '../../assets/avartar.jpg';
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { t, lang, toggleLang } = useLang();
   const { dark, toggleTheme } = useTheme();
+
+  const avatarSrc = user?.photoURL || defaultAvatar;
 
   const handleLogout = async () => {
     await logout();
@@ -24,6 +27,13 @@ export default function Settings() {
   return (
     <div className="page">
       <div className="settings-list">
+        <button className="menu-item profile-menu-item" onClick={() => navigate('/profile')}>
+          <div className="profile-menu-left">
+            <img src={avatarSrc} alt="avatar" className="profile-menu-avatar" />
+            <span className="menu-item-label">{t('profile')}</span>
+          </div>
+          <span className="profile-menu-chevron">›</span>
+        </button>
         <MenuItem icon={reportIcon} label={t('report')} onClick={() => navigate('/report')} />
         <MenuItem icon={categoryIcon} label={t('categoryManagement')} onClick={() => navigate('/categories')} />
         <MenuItem icon={budgetIcon} label={t('budgeting')} onClick={() => navigate('/budgets')} />

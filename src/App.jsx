@@ -20,6 +20,7 @@ import CategoryManagement from './pages/CategoryManagement';
 import BudgetManagement from './pages/BudgetManagement';
 import ChangePassword from './pages/ChangePassword';
 import RecurringExpenses from './pages/RecurringExpenses';
+import Profile from './pages/Profile';
 import './App.css';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
               <Route path="/budgets" element={<BudgetManagement />} />
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/recurring" element={<RecurringExpenses />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </RecurringProvider>
         </BudgetProvider>

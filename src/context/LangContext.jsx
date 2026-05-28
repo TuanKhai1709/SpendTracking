@@ -132,6 +132,11 @@ const translations = {
     darkMode: 'Dark Mode',
     changePassword: 'Change Password',
     logoutAction: 'Logout',
+    profile: 'Account',
+    accountCreated: 'Account Created',
+    showPassword: 'Show',
+    hidePassword: 'Hide',
+    googleAccount: 'Google Account',
 
     // Report
     // (reuses byMonth, byYear, etc.)
@@ -299,6 +304,11 @@ const translations = {
     darkMode: 'Chế độ tối',
     changePassword: 'Đổi mật khẩu',
     logoutAction: 'Đăng xuất',
+    profile: 'Tài khoản',
+    accountCreated: 'Ngày tạo tài khoản',
+    showPassword: 'Hiện',
+    hidePassword: 'Ẩn',
+    googleAccount: 'Tài khoản Google',
 
     // Category Management
     enterCategoryName: 'Nhập tên danh mục',
