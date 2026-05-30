@@ -22,7 +22,18 @@ const ADMIN_EMAILS = ['admin@gmail.com', 'tuankhai17092005@gmail.com'];
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sessionPassword, setSessionPassword] = useState(null);
+  const [sessionPassword, setSessionPassword] = useState(
+    () => sessionStorage.getItem('_sp') || null
+  );
+
+  const saveSessionPassword = (pwd) => {
+    if (pwd) {
+      sessionStorage.setItem('_sp', pwd);
+    } else {
+      sessionStorage.removeItem('_sp');
+    }
+    setSessionPassword(pwd);
+  };
 
   useEffect(() => {
     // Handle redirect result from Google sign-in
@@ -52,7 +63,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password, rememberMe = false) => {
     await signInWithEmailAndPassword(auth, email, password);
-    setSessionPassword(password);
+    saveSessionPassword(password);
     if (rememberMe) {
       localStorage.setItem('rememberMe_email', email);
     } else {
@@ -83,7 +94,7 @@ export function AuthProvider({ children }) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: username });
     await sendEmailVerification(cred.user);
-    setSessionPassword(password);
+    saveSessionPassword(password);
     setUser({
       uid: cred.user.uid,
       email: cred.user.email,
@@ -98,7 +109,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     localStorage.removeItem('rememberMe_email');
-    setSessionPassword(null);
+    saveSessionPassword(null);
     await signOut(auth);
   };
 
