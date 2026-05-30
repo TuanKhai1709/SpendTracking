@@ -17,9 +17,12 @@ import { auth } from '../firebase';
 const AuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
 
+const ADMIN_EMAILS = ['admin@gmail.com', 'tuankhai17092005@gmail.com'];
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sessionPassword, setSessionPassword] = useState(null);
 
   useEffect(() => {
     // Handle redirect result from Google sign-in
@@ -37,6 +40,7 @@ export function AuthProvider({ children }) {
           photoURL: firebaseUser.photoURL || null,
           creationTime: firebaseUser.metadata?.creationTime || null,
           isGoogleUser: firebaseUser.providerData?.[0]?.providerId === 'google.com',
+          isAdmin: ADMIN_EMAILS.includes(firebaseUser.email),
         });
       } else {
         setUser(null);
@@ -48,6 +52,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password, rememberMe = false) => {
     await signInWithEmailAndPassword(auth, email, password);
+    setSessionPassword(password);
     if (rememberMe) {
       localStorage.setItem('rememberMe_email', email);
     } else {
@@ -78,6 +83,7 @@ export function AuthProvider({ children }) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: username });
     await sendEmailVerification(cred.user);
+    setSessionPassword(password);
     setUser({
       uid: cred.user.uid,
       email: cred.user.email,
@@ -86,11 +92,13 @@ export function AuthProvider({ children }) {
       photoURL: cred.user.photoURL || null,
       creationTime: cred.user.metadata?.creationTime || null,
       isGoogleUser: false,
+      isAdmin: ADMIN_EMAILS.includes(cred.user.email),
     });
   };
 
   const logout = async () => {
     localStorage.removeItem('rememberMe_email');
+    setSessionPassword(null);
     await signOut(auth);
   };
 
@@ -114,6 +122,7 @@ export function AuthProvider({ children }) {
       resetPassword,
       resendEmailVerification,
       loading,
+      sessionPassword,
     }}>
       {children}
     </AuthContext.Provider>

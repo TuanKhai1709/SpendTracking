@@ -7,7 +7,7 @@ import defaultAvatar from '../../assets/avartar.jpg';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, sessionPassword } = useAuth();
   const { t, lang } = useLang();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -39,7 +39,10 @@ export default function Profile() {
       <div className="settings-list profile-info-card">
         <div className="profile-field-row">
           <span className="profile-field-label">{t('username')}</span>
-          <span className="profile-field-value">{user?.displayName || '—'}</span>
+          <div className="profile-name-wrap">
+            <span className="profile-field-value">{user?.displayName || '—'}</span>
+            {user?.isAdmin && <span className="profile-admin-badge">{t('adminRole')}</span>}
+          </div>
         </div>
 
         <div className="profile-field-row">
@@ -53,12 +56,11 @@ export default function Profile() {
             <span className="profile-google-badge">{t('googleAccount')}</span>
           ) : (
             <div className="profile-password-wrap">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value="••••••••"
-                readOnly
-                className="profile-password-display"
-              />
+              <span className="profile-password-text">
+                {showPassword
+                  ? (sessionPassword || '••••••••')
+                  : (sessionPassword ? '•'.repeat(sessionPassword.length) : '••••••••')}
+              </span>
               <button
                 className="profile-show-btn"
                 onClick={() => setShowPassword((s) => !s)}

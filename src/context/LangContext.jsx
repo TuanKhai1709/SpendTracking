@@ -137,6 +137,7 @@ const translations = {
     showPassword: 'Show',
     hidePassword: 'Hide',
     googleAccount: 'Google Account',
+    adminRole: 'Admin',
 
     // Report
     // (reuses byMonth, byYear, etc.)
@@ -309,6 +310,7 @@ const translations = {
     showPassword: 'Hiện',
     hidePassword: 'Ẩn',
     googleAccount: 'Tài khoản Google',
+    adminRole: 'Quản trị viên',
 
     // Category Management
     enterCategoryName: 'Nhập tên danh mục',
