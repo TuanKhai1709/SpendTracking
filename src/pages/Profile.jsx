@@ -76,6 +76,32 @@ export default function Profile() {
           <span className="profile-field-value">{formatDate(user?.creationTime)}</span>
         </div>
       </div>
+
+      {/* Subscription block */}
+      <div className="settings-list profile-info-card" style={{ marginTop: 12 }}>
+        <div className="profile-field-row">
+          <span className="profile-field-label">Gói đang dùng</span>
+          <span className="profile-field-value">
+            {user?.subscription?.planName || 'Dùng thử'}
+          </span>
+        </div>
+        <div className="profile-field-row profile-field-row--last">
+          <span className="profile-field-label">Thời gian còn lại</span>
+          <span
+            className="profile-field-value"
+            style={{
+              color: user?.subStatus?.active
+                ? (user.subStatus.daysLeft !== Infinity && user.subStatus.daysLeft <= 3 ? '#FC5C65' : '#26DE81')
+                : '#FC5C65',
+              fontWeight: 600,
+            }}
+          >
+            {user?.subStatus?.active
+              ? (user.subStatus.daysLeft === Infinity ? 'Vĩnh viễn' : `${user.subStatus.daysLeft} ngày`)
+              : 'Hết hạn'}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

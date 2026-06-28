@@ -3,3 +3,5 @@ dist/
 *.db
 .env
 .env.local
+server/.env
+server/node_modules/

@@ -1786,3 +1786,675 @@ body {
   text-transform: uppercase;
   flex-shrink: 0;
 }
+/* ==================== Subscription Banners ==================== */
+
+.sub-expired-banner,
+.sub-warning-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  gap: 10px;
+}
+
+.sub-expired-banner {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.sub-warning-banner {
+  background: #FFF8E1;
+  color: #E65100;
+  border: 1px solid #FFB300;
+}
+
+[data-theme="dark"] .sub-warning-banner {
+  background: #3A2E00;
+  color: #FFB300;
+  border-color: #FFB300;
+}
+
+.sub-expired-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ==================== Set Budget CTA ==================== */
+
+.set-budget-cta {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1.5px dashed var(--primary);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.set-budget-cta:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ==================== Settings – subscription badge ==================== */
+
+.menu-item-sub-badge {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.profile-menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-menu-email {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.menu-item--admin {
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+/* ==================== Subscription Page ==================== */
+
+.sub-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+}
+
+.sub-status-banner--active {
+  background: var(--success-light);
+  color: #1a7a4a;
+  border: 1px solid var(--success);
+}
+
+[data-theme="dark"] .sub-status-banner--active {
+  color: var(--success);
+}
+
+.sub-status-banner--expired {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.sub-status-icon {
+  font-size: 1rem;
+}
+
+.sub-page-desc {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+}
+
+.sub-pkg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sub-pkg-card {
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.sub-pkg-card--sale {
+  border-color: var(--danger);
+}
+
+.sub-pkg-card--current {
+  border-color: var(--primary);
+}
+
+.sub-sale-badge {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.sub-current-badge {
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.sub-pkg-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.sub-pkg-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.sub-pkg-original {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.sub-pkg-sale {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--danger);
+}
+
+.sub-pkg-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.sub-pkg-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.sub-pkg-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.sub-pkg-btn--current {
+  background: var(--border);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* ==================== Payment Modal ==================== */
+
+.payment-modal {
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+}
+
+.payment-modal__amount {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 8px 0;
+}
+
+.payment-modal__hint {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 6px 0;
+}
+
+.payment-qr-img {
+  width: 200px;
+  height: 200px;
+  margin: 16px auto;
+  display: block;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.payment-modal__link {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--primary);
+  text-decoration: underline;
+  margin-top: 4px;
+}
+
+.payment-modal__polling {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  margin-top: 10px;
+}
+
+.payment-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 1.4s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.payment-modal__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+}
+
+.payment-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.payment-success-icon {
+  width: 60px;
+  height: 60px;
+  background: var(--success);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.payment-success-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.payment-error-icon {
+  width: 60px;
+  height: 60px;
+  background: var(--danger);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* ==================== Admin Pages ==================== */
+
+.admin-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 20px 16px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-header > div {
+  flex: 1;
+}
+
+.admin-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.admin-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 2px 0 0;
+}
+
+.admin-nav-btn {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-search-bar {
+  margin-bottom: 14px;
+}
+
+.admin-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-input:focus {
+  border-color: var(--primary);
+}
+
+.admin-input--sm {
+  width: auto;
+  min-width: 160px;
+}
+
+.admin-loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--primary-light);
+}
+
+.admin-row-self {
+  background: #FFFDE7 !important;
+}
+
+[data-theme="dark"] .admin-row-self {
+  background: #2A2800 !important;
+}
+
+.admin-email-cell {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-badge--admin {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.admin-badge--user {
+  background: var(--border);
+  color: var(--text-secondary);
+}
+
+.admin-toggle {
+  border: none;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-toggle--on {
+  background: var(--success-light);
+  color: #1a7a4a;
+  border: 1px solid var(--success);
+}
+
+[data-theme="dark"] .admin-toggle--on {
+  color: var(--success);
+}
+
+.admin-toggle--off {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.admin-plan-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.admin-edit-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-edit-btn:hover {
+  background: var(--primary-dark);
+}
+
+.admin-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 24px;
+}
+
+/* Admin edit modal */
+.admin-edit-modal {
+  max-width: 360px;
+  width: 90%;
+}
+
+.admin-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+
+.admin-edit-note {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* Admin package management */
+.admin-pkg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.admin-pkg-card {
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-pkg-card--sale {
+  border-color: var(--danger);
+}
+
+.admin-sale-badge {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.admin-pkg-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.admin-pkg-prices {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-pkg-original {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.admin-pkg-sale {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--danger);
+}
+
+.admin-pkg-current {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.admin-pkg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-pkg-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.admin-pkg-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Shared small button */
+.btn--sm {
+  padding: 6px 14px !important;
+  font-size: 0.82rem !important;
+}
+
+/* form-label for admin modals */
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}

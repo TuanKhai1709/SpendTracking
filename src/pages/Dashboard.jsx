@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useBudget } from '../context/BudgetContext';
@@ -7,6 +8,7 @@ import WeekChart from '../components/WeekChart';
 import BudgetCard from '../components/BudgetCard';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t, lang, formatMoney, translateCategory } = useLang();
   const { budgets } = useBudget();
@@ -90,6 +92,24 @@ export default function Dashboard() {
 
   return (
     <div className="page">
+      {/* Subscription expired / trial warning banner */}
+      {user?.subStatus && !user.subStatus.active && (
+        <div className="sub-expired-banner">
+          <span>⚠️ Tài khoản đã hết hạn.</span>
+          <button className="sub-expired-btn" onClick={() => navigate('/subscription')}>
+            Gia hạn ngay
+          </button>
+        </div>
+      )}
+      {user?.subStatus?.active && user.subStatus.daysLeft !== Infinity && user.subStatus.daysLeft <= 3 && (
+        <div className="sub-warning-banner">
+          <span>⏳ Còn <strong>{user.subStatus.daysLeft} ngày</strong> sử dụng ({user.subStatus.label}).</span>
+          <button className="sub-expired-btn" onClick={() => navigate('/subscription')}>
+            Gia hạn
+          </button>
+        </div>
+      )}
+
       <WeekChart />
 
       <div className="month-select-bar">
@@ -126,7 +146,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {budgets.length > 0 && (
+      {budgets.length > 0 ? (
         <div className="summary-section">
           <h3>{t('budgets')}</h3>
           <div className="budget-list">
@@ -134,6 +154,12 @@ export default function Dashboard() {
               <BudgetCard key={b.id} budget={b} spent={budgetSpent[b.id] || 0} />
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="summary-section">
+          <button className="set-budget-cta" onClick={() => navigate('/budgets')}>
+            💰 Đặt hạn mức ngay.
+          </button>
         </div>
       )}
     </div>

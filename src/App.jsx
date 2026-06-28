@@ -6,7 +6,9 @@ import { BudgetProvider } from './context/BudgetContext';
 import { CategoryProvider } from './context/CategoryContext';
 import { RecurringProvider } from './context/RecurringContext';
 import { TransactionCacheProvider } from './context/TransactionCacheContext';
+import { SubscriptionProvider } from './context/SubscriptionContext';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -21,6 +23,9 @@ import BudgetManagement from './pages/BudgetManagement';
 import ChangePassword from './pages/ChangePassword';
 import RecurringExpenses from './pages/RecurringExpenses';
 import Profile from './pages/Profile';
+import Subscription from './pages/Subscription';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminPackages from './pages/admin/AdminPackages';
 import './App.css';
 
 function App() {
@@ -40,6 +45,10 @@ function App() {
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/recurring" element={<RecurringExpenses />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/subscription" element={<Subscription />} />
+              {/* Admin-only routes (no Navbar) */}
+              <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+              <Route path="/admin/packages" element={<AdminRoute><AdminPackages /></AdminRoute>} />
             </Routes>
           </RecurringProvider>
         </BudgetProvider>
@@ -51,16 +60,18 @@ function App() {
     <ThemeProvider>
       <LangProvider>
         <AuthProvider>
-          <HashRouter>
-            <Routes>
-              <Route path="/welcome" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/*" element={<PrivateRoute>{protectedRoutes}</PrivateRoute>} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </HashRouter>
+          <SubscriptionProvider>
+            <HashRouter>
+              <Routes>
+                <Route path="/welcome" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/*" element={<PrivateRoute>{protectedRoutes}</PrivateRoute>} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </HashRouter>
+          </SubscriptionProvider>
         </AuthProvider>
       </LangProvider>
     </ThemeProvider>
