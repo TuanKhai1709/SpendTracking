@@ -39,13 +39,21 @@ async function ensureUserDoc(firebaseUser) {
       displayName: firebaseUser.displayName || '',
       role: isAdmin ? 'admin' : 'user',
       status: 'active',
-      subscription: {
-        plan: 'trial',
-        planName: 'Dùng thử',
-        expiryDate: null,
-        trialEndDate: Timestamp.fromDate(trialEnd),
-        activatedAt: null,
-      },
+      subscription: isAdmin
+        ? {
+            plan: 'lifetime',
+            planName: 'Vĩnh Viễn',
+            expiryDate: null,
+            trialEndDate: null,
+            activatedAt: serverTimestamp(),
+          }
+        : {
+            plan: 'trial',
+            planName: 'Dùng thử',
+            expiryDate: null,
+            trialEndDate: Timestamp.fromDate(trialEnd),
+            activatedAt: null,
+          },
       createdAt: serverTimestamp(),
     });
     const newSnap = await getDoc(ref);
@@ -54,9 +62,19 @@ async function ensureUserDoc(firebaseUser) {
 
   // Update role in case email was added to ADMIN_EMAILS later
   const data = snap.data();
-  if (isAdmin && data.role !== 'admin') {
-    await updateDoc(ref, { role: 'admin' });
-    return { ...data, role: 'admin' };
+  const updates = {};
+  if (isAdmin && data.role !== 'admin') updates.role = 'admin';
+  // Upgrade existing admins who still have trial plan to lifetime
+  if (isAdmin && data.subscription?.plan === 'trial') {
+    updates['subscription.plan'] = 'lifetime';
+    updates['subscription.planName'] = 'Vĩnh Viễn';
+    updates['subscription.expiryDate'] = null;
+    updates['subscription.activatedAt'] = serverTimestamp();
+  }
+  if (Object.keys(updates).length > 0) {
+    await updateDoc(ref, updates);
+    const updated = await getDoc(ref);
+    return updated.data();
   }
   return data;
 }

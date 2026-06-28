@@ -109,11 +109,14 @@ export default function AdminUsers() {
       u.displayName?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const adminCount = users.filter((u) => u.role === 'admin').length;
+  const userCount  = users.filter((u) => u.role !== 'admin').length;
+
   return (
     <div className="admin-page">
       {/* Header */}
       <div className="admin-header">
-        <button className="back-btn" onClick={() => navigate('/admin/packages')}>
+        <button className="back-btn" onClick={() => navigate('/settings')}>
           <img src={backIcon} alt="" className="back-icon" />
         </button>
         <div>
@@ -124,6 +127,30 @@ export default function AdminUsers() {
           Gói dịch vụ →
         </button>
       </div>
+
+      {/* Stats */}
+      {!loading && (
+        <div className="admin-stats-row">
+          <div className="admin-stat-card">
+            <span className="admin-stat-value">{users.length}</span>
+            <span className="admin-stat-label">Tổng tài khoản</span>
+          </div>
+          <div className="admin-stat-card">
+            <span className="admin-stat-value admin-stat-value--admin">{adminCount}</span>
+            <span className="admin-stat-label">Quản trị viên</span>
+          </div>
+          <div className="admin-stat-card">
+            <span className="admin-stat-value">{userCount}</span>
+            <span className="admin-stat-label">Người dùng</span>
+          </div>
+          <div className="admin-stat-card">
+            <span className="admin-stat-value admin-stat-value--active">
+              {users.filter((u) => u.status === 'active').length}
+            </span>
+            <span className="admin-stat-label">Đang hoạt động</span>
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="admin-search-bar">

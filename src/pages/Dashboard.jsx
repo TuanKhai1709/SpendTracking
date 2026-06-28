@@ -157,9 +157,10 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="summary-section">
-          <button className="set-budget-cta" onClick={() => navigate('/budgets')}>
-            💰 Đặt hạn mức ngay.
-          </button>
+          <p className="set-budget-cta">
+            Đặt hạn mức{' '}
+            <span className="set-budget-link" onClick={() => navigate('/budgets')}>ngay</span>.
+          </p>
         </div>
       )}
     </div>

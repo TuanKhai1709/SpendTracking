@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { useSubscription } from '../../context/SubscriptionContext';
 import backIcon from '../../../assets/back.png';
 
@@ -11,9 +13,33 @@ export default function AdminPackages() {
   const navigate = useNavigate();
   const { packages, loadingPkgs, updatePackage, effectivePrice } = useSubscription();
 
-  // Per-package editing state: { [id]: { saleEnabled, salePrice } }
   const [editing, setEditing] = useState({});
   const [saving, setSaving] = useState({});
+  // Map of packageId -> count of users on that plan
+  const [planCounts, setPlanCounts] = useState({});
+  const [totalUsers, setTotalUsers] = useState(0);
+
+  // Load user counts per plan
+  useEffect(() => {
+    async function loadCounts() {
+      try {
+        const snap = await getDocs(collection(db, 'users'));
+        const counts = {};
+        let total = 0;
+        snap.docs.forEach((d) => {
+          const plan = d.data()?.subscription?.plan || '';
+          counts[plan] = (counts[plan] || 0) + 1;
+          total++;
+        });
+        setPlanCounts(counts);
+        setTotalUsers(total);
+      } catch (_) { /* silent if no permissions */ }
+    }
+    loadCounts();
+  }, []);
+  // Map of packageId -> count of users on that plan
+  const [planCounts, setPlanCounts] = useState({});
+  const [totalUsers, setTotalUsers] = useState(0);
 
   const startEdit = (pkg) => {
     setEditing((prev) => ({
@@ -62,7 +88,7 @@ export default function AdminPackages() {
     <div className="admin-page">
       {/* Header */}
       <div className="admin-header">
-        <button className="back-btn" onClick={() => navigate('/admin/users')}>
+        <button className="back-btn" onClick={() => navigate('/settings')}>
           <img src={backIcon} alt="" className="back-icon" />
         </button>
         <div>
@@ -73,6 +99,30 @@ export default function AdminPackages() {
           ← Người dùng
         </button>
       </div>
+
+      {/* Stats */}
+      {totalUsers > 0 && (
+        <div className="admin-stats-row">
+          <div className="admin-stat-card">
+            <span className="admin-stat-value">{totalUsers}</span>
+            <span className="admin-stat-label">Tổng tài khoản</span>
+          </div>
+          <div className="admin-stat-card">
+            <span className="admin-stat-value admin-stat-value--active">{planCounts['lifetime'] || 0}</span>
+            <span className="admin-stat-label">Vĩnh Viễn</span>
+          </div>
+          <div className="admin-stat-card">
+            <span className="admin-stat-value">
+              {(planCounts['1year'] || 0) + (planCounts['2year'] || 0) + (planCounts['3year'] || 0)}
+            </span>
+            <span className="admin-stat-label">Gói có hạn</span>
+          </div>
+          <div className="admin-stat-card">
+            <span className="admin-stat-value admin-stat-value--trial">{planCounts['trial'] || 0}</span>
+            <span className="admin-stat-label">Dùng thử</span>
+          </div>
+        </div>
+      )}
 
       {loadingPkgs ? (
         <div className="admin-loading">Đang tải...</div>
@@ -92,6 +142,12 @@ export default function AdminPackages() {
                 {currentSaleEnabled && <span className="admin-sale-badge">SALE</span>}
 
                 <div className="admin-pkg-name">{pkg.name}</div>
+
+                {/* User count for this plan */}
+                <div className="admin-pkg-user-count">
+                  <span className="admin-pkg-user-count__num">{planCounts[pkg.id] || 0}</span>
+                  <span className="admin-pkg-user-count__label"> người dùng</span>
+                </div>
 
                 <div className="admin-pkg-prices">
                   {currentSaleEnabled && pkg.originalPrice ? (

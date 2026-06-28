@@ -1833,26 +1833,93 @@ body {
 /* ==================== Set Budget CTA ==================== */
 
 .set-budget-cta {
-  display: block;
-  width: 100%;
-  padding: 14px 16px;
-  background: var(--primary-light);
-  color: var(--primary);
-  border: 1.5px dashed var(--primary);
-  border-radius: var(--radius);
-  font-size: 1rem;
-  font-weight: 600;
+  margin: 4px 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
   text-align: center;
+  background: none;
+  border: none;
+  padding: 0;
+  font-style: italic;
+}
+
+.set-budget-link {
+  color: var(--primary);
+  text-decoration: underline;
   cursor: pointer;
-  transition: background 0.2s;
+  font-style: normal;
 }
 
-.set-budget-cta:hover {
-  background: var(--primary);
-  color: #fff;
+.set-budget-link:hover {
+  color: var(--primary-dark);
 }
 
-/* ==================== Settings – subscription badge ==================== */
+/* ==================== Admin Stats Row ==================== */
+
+.admin-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .admin-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.admin-stat-card {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.admin-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.admin-stat-value--admin {
+  color: var(--primary);
+}
+
+.admin-stat-value--active {
+  color: var(--success);
+}
+
+.admin-stat-value--trial {
+  color: var(--text-secondary);
+}
+
+.admin-stat-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Package user count */
+.admin-pkg-user-count {
+  font-size: 0.85rem;
+}
+
+.admin-pkg-user-count__num {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.admin-pkg-user-count__label {
+  color: var(--text-secondary);
+}
+
+/* ==================== Settings ï¿½ subscription badge ==================== */
 
 .menu-item-sub-badge {
   font-size: 0.82rem;
