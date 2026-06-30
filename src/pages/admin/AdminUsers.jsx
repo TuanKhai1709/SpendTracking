@@ -185,6 +185,11 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
       allow read, write: if isAdmin();
+      // Subcollections: expenses, income, budgets, categories, recurring...
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+        allow read, write: if isAdmin();
+      }
     }
     match /packages/{id} {
       allow read: if request.auth != null;
@@ -193,7 +198,9 @@ service cloud.firestore {
     match /orders/{code} {
       allow read: if request.auth != null &&
         (resource.data.uid == request.auth.uid || isAdmin());
-      allow write: if false;
+      allow create: if request.auth != null &&
+        request.resource.data.uid == request.auth.uid;
+      allow write: if isAdmin();
     }
   }
 }`}</pre>

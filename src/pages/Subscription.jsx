@@ -22,18 +22,18 @@ export default function Subscription() {
   const isCurrentPlan = (pkg) => currentPlan === pkg.id;
 
   const txt = {
-    title:       vi ? 'Nâng cấp tài khoản' : 'Upgrade Account',
-    desc:        vi ? 'Chọn gói phù hợp để sử dụng đầy đủ tính năng SpendTracker' : 'Choose a plan to unlock all SpendTracker features',
-    loading:     vi ? 'Đang tải gói...' : 'Loading plans...',
-    current:     vi ? 'Đang dùng' : 'Current',
-    renew:       vi ? 'Gia hạn' : 'Renew',
-    using:       vi ? 'Đang sử dụng' : 'Current Plan',
-    daysLeft:    vi ? `còn ${user?.subStatus?.daysLeft} ngày` : `${user?.subStatus?.daysLeft} days left`,
-    lifetime:    vi ? 'Vĩnh Viễn' : 'Lifetime',
-    trial:       vi ? 'Dùng thử' : 'Trial',
-    expired:     vi ? 'Tài khoản đã hết hạn. Vui lòng gia hạn để tiếp tục sử dụng.' : 'Account expired. Please renew to continue.',
-    yearsDesc:   (y) => vi ? `Sử dụng ${y} năm` : `${y} year${y > 1 ? 's' : ''} access`,
-    lifetimeDesc:vi ? 'Sử dụng vĩnh viễn' : 'Lifetime access',
+    title: vi ? 'Nâng cấp tài khoản' : 'Upgrade Account',
+    desc: vi ? 'Chọn gói phù hợp để sử dụng đầy đủ tính năng SpendTracker' : 'Choose a plan to unlock all SpendTracker features',
+    loading: vi ? 'Đang tải gói...' : 'Loading plans...',
+    current: vi ? 'Đang dùng' : 'Current',
+    renew: vi ? 'Gia hạn' : 'Renew',
+    using: vi ? 'Đang sử dụng' : 'Current Plan',
+    daysLeft: vi ? `còn ${user?.subStatus?.daysLeft} ngày` : `${user?.subStatus?.daysLeft} days left`,
+    lifetime: vi ? 'Vĩnh Viễn' : 'Lifetime',
+    trial: vi ? 'Dùng thử' : 'Trial',
+    expired: vi ? 'Tài khoản đã hết hạn. Vui lòng gia hạn để tiếp tục sử dụng.' : 'Account expired. Please renew to continue.',
+    yearsDesc: (y) => vi ? `Sử dụng ${y} năm` : `${y} year${y > 1 ? 's' : ''} access`,
+    lifetimeDesc: vi ? 'Sử dụng vĩnh viễn' : 'Lifetime access',
   };
 
   const getPlanStatusText = () => {

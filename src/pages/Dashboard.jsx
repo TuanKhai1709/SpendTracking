@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [totalIncome, setTotalIncome] = useState(0);
   const [recurringInvest, setRecurringInvest] = useState(0);
   const [budgetSpent, setBudgetSpent] = useState({});
+  const [fetchError, setFetchError] = useState(null);
 
   const activeYM = selectedMonth || currentYM;
 
@@ -84,7 +85,12 @@ export default function Dashboard() {
       }));
       setBudgetSpent(Object.fromEntries(spentEntries));
     } catch (err) {
-      console.error('Failed to fetch dashboard data');
+      console.error('Firestore fetch error:', err?.code, err?.message);
+      if (err?.code === 'permission-denied') {
+        setFetchError('firestore-rules');
+      } else {
+        setFetchError('unknown');
+      }
     }
   };
 
@@ -111,6 +117,16 @@ export default function Dashboard() {
       )}
 
       <WeekChart />
+
+      {fetchError === 'firestore-rules' && (
+        <div className="admin-permission-error" style={{ margin: '0 0 12px' }}>
+          <strong>⚠️ Không thể đọc dữ liệu (Firestore permission-denied)</strong>
+          <p style={{ marginTop: 6, fontSize: 13 }}>
+            Dữ liệu của bạn vẫn còn trong Firestore nhưng bị chặn bởi Security Rules thiếu subcollection.<br />
+            Vào <strong>Firebase Console → Firestore → Rules</strong> và cập nhật rules (xem AdminUsers để copy rules đúng).
+          </p>
+        </div>
+      )}
 
       <div className="month-select-bar">
         <select

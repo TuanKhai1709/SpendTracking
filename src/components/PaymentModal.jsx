@@ -4,8 +4,8 @@ import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 
-const PAYOS_CLIENT_ID    = import.meta.env.VITE_PAYOS_CLIENT_ID;
-const PAYOS_API_KEY      = import.meta.env.VITE_PAYOS_API_KEY;
+const PAYOS_CLIENT_ID = import.meta.env.VITE_PAYOS_CLIENT_ID;
+const PAYOS_API_KEY = import.meta.env.VITE_PAYOS_API_KEY;
 const PAYOS_CHECKSUM_KEY = import.meta.env.VITE_PAYOS_CHECKSUM_KEY;
 const POLL_INTERVAL = 3000;
 
@@ -34,13 +34,13 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
   const vi = lang === 'vi';
   const txt = {
     creating: vi ? 'Đang tạo đơn thanh toán...' : 'Creating payment...',
-    hint:     vi ? 'Quét mã QR bằng app ngân hàng để thanh toán' : 'Scan QR with your banking app to pay',
+    hint: vi ? 'Quét mã QR bằng app ngân hàng để thanh toán' : 'Scan QR with your banking app to pay',
     openPage: vi ? 'Mở trang thanh toán' : 'Open payment page',
-    waiting:  vi ? 'Đang chờ thanh toán...' : 'Waiting for payment...',
-    close:    vi ? 'Đóng' : 'Close',
-    success:  vi ? 'Thanh toán thành công!' : 'Payment successful!',
-    activated:vi ? `Tài khoản đã kích hoạt gói ${pkg.name}.` : `Account activated: ${pkg.name}.`,
-    autoClose:vi ? 'Cửa sổ tự đóng sau 3 giây...' : 'Closing in 3 seconds...',
+    waiting: vi ? 'Đang chờ thanh toán...' : 'Waiting for payment...',
+    close: vi ? 'Đóng' : 'Close',
+    success: vi ? 'Thanh toán thành công!' : 'Payment successful!',
+    activated: vi ? `Tài khoản đã kích hoạt gói ${pkg.name}.` : `Account activated: ${pkg.name}.`,
+    autoClose: vi ? 'Cửa sổ tự đóng sau 3 giây...' : 'Closing in 3 seconds...',
     errTitle: vi ? 'Có lỗi xảy ra' : 'An error occurred',
   };
 
