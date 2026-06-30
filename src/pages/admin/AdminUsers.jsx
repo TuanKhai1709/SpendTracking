@@ -270,8 +270,8 @@ service cloud.firestore {
               Nếu chọn gói có thời hạn, ngày hết hạn sẽ được tính từ hôm nay.
             </p>
             <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setEditTarget(null)}>Huỷ</button>
-              <button className="btn-primary" onClick={saveEdit} disabled={saving}>
+              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditTarget(null)}>Huỷ</button>
+              <button className="btn-primary" style={{ flex: 1 }} onClick={saveEdit} disabled={saving}>
                 {saving ? 'Đang lưu...' : 'Lưu'}
               </button>
             </div>

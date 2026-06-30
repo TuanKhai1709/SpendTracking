@@ -81,27 +81,27 @@ async function ensureUserDoc(firebaseUser) {
 
 // Compute derived subscription status from Firestore doc
 function computeSubStatus(firestoreData) {
-  if (!firestoreData?.subscription) return { active: false, label: null, daysLeft: 0 };
+  if (!firestoreData?.subscription) return { active: false, planKey: 'expired', label: null, daysLeft: 0 };
   const { plan, expiryDate, trialEndDate } = firestoreData.subscription;
 
-  if (plan === 'lifetime') return { active: true, label: 'Vĩnh Viễn', daysLeft: Infinity };
+  if (plan === 'lifetime') return { active: true, planKey: 'lifetime', label: 'Lifetime', daysLeft: Infinity };
 
   const now = Date.now();
 
   if (plan && plan !== 'trial' && expiryDate) {
     const exp = expiryDate.toDate?.() ?? new Date(expiryDate);
     const daysLeft = Math.ceil((exp - now) / 86400000);
-    return { active: daysLeft > 0, label: firestoreData.subscription.planName, daysLeft: Math.max(0, daysLeft) };
+    return { active: daysLeft > 0, planKey: plan, label: firestoreData.subscription.planName, daysLeft: Math.max(0, daysLeft) };
   }
 
   // Trial
   if (trialEndDate) {
     const end = trialEndDate.toDate?.() ?? new Date(trialEndDate);
     const daysLeft = Math.ceil((end - now) / 86400000);
-    return { active: daysLeft > 0, label: 'Dùng thử', daysLeft: Math.max(0, daysLeft) };
+    return { active: daysLeft > 0, planKey: 'trial', label: 'Trial', daysLeft: Math.max(0, daysLeft) };
   }
 
-  return { active: false, label: null, daysLeft: 0 };
+  return { active: false, planKey: 'expired', label: null, daysLeft: 0 };
 }
 
 export function AuthProvider({ children }) {

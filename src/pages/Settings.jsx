@@ -24,14 +24,30 @@ export default function Settings() {
     await logout();
   };
 
-  // Compute subscription display
+  // Compute subscription display (language-aware)
   const sub = user?.subStatus;
-  const subLabel = sub?.active
-    ? (sub.daysLeft === Infinity ? 'Vĩnh Viễn' : `${sub.label} · còn ${sub.daysLeft} ngày`)
-    : 'Hết hạn';
+
+  const getPlanLabel = () => {
+    if (!sub) return lang === 'vi' ? 'Hết hạn' : 'Expired';
+    const { planKey, daysLeft, label } = sub;
+    if (!sub.active) return lang === 'vi' ? 'Hết hạn' : 'Expired';
+    if (planKey === 'lifetime') return lang === 'vi' ? 'Vĩnh Viễn' : 'Lifetime';
+    if (planKey === 'trial') {
+      const base = lang === 'vi' ? 'Dùng thử' : 'Trial';
+      const days = lang === 'vi' ? `còn ${daysLeft} ngày` : `${daysLeft} days left`;
+      return `${base} · ${days}`;
+    }
+    // paid plan — label is the plan name (stored in vi)
+    const days = lang === 'vi' ? `còn ${daysLeft} ngày` : `${daysLeft} days left`;
+    return `${label} · ${days}`;
+  };
+
+  const subLabel = getPlanLabel();
   const subColor = sub?.active
     ? (sub.daysLeft !== Infinity && sub.daysLeft <= 3 ? '#FC5C65' : '#26DE81')
     : '#FC5C65';
+
+  const usageLabel = lang === 'vi' ? 'Thời gian sử dụng' : 'Subscription';
 
   return (
     <div className="page">
@@ -50,7 +66,7 @@ export default function Settings() {
 
         {/* Subscription info row */}
         <button className="menu-item" onClick={() => navigate('/subscription')}>
-          <span className="menu-item-label">Thời gian sử dụng</span>
+          <span className="menu-item-label">{usageLabel}</span>
           <span className="menu-item-sub-badge" style={{ color: subColor }}>{subLabel}</span>
         </button>
 
@@ -58,11 +74,11 @@ export default function Settings() {
         {user?.isAdmin && (
           <>
             <button className="menu-item menu-item--admin" onClick={() => navigate('/admin/users')}>
-              <span className="menu-item-label">👤 Quản lý Người dùng</span>
+              <span className="menu-item-label">{lang === 'vi' ? 'Quản lý Người dùng' : 'User Management'}</span>
               <span className="profile-menu-chevron">›</span>
             </button>
             <button className="menu-item menu-item--admin" onClick={() => navigate('/admin/packages')}>
-              <span className="menu-item-label">📦 Quản lý Gói dịch vụ</span>
+              <span className="menu-item-label">{lang === 'vi' ? 'Quản lý Gói dịch vụ' : 'Package Management'}</span>
               <span className="profile-menu-chevron">›</span>
             </button>
           </>
