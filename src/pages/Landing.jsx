@@ -6,7 +6,7 @@ import bgImage from '../../assets/background.webp';
 
 export default function Landing() {
   const { user, loading } = useAuth();
-  const { t } = useLang();
+  const { t, lang, toggleLang } = useLang();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,8 +21,8 @@ export default function Landing() {
     <div className="landing-page" style={{ backgroundImage: `url(${bgImage})` }}>
       <div className="landing-overlay" />
       <div className="landing-content">
-        <h1 className="landing-title">SpendTracker</h1>
-        <p className="landing-subtitle">The best app for your plants</p>
+        <p className="landing-subtitle">{t('tagline')}</p>
+
         <div className="landing-actions">
           <button
             className="landing-btn-signin"
@@ -36,6 +36,25 @@ export default function Landing() {
           >
             {t('startNewAccount')}
           </button>
+        </div>
+
+        {/* Language switcher */}
+        <div className="landing-lang">
+          <span className="landing-lang-label">{t('landingChooseLang')}</span>
+          <div className="landing-lang-btns">
+            <button
+              className={`landing-lang-btn ${lang === 'en' ? 'landing-lang-btn--active' : ''}`}
+              onClick={() => lang !== 'en' && toggleLang()}
+            >
+              EN
+            </button>
+            <button
+              className={`landing-lang-btn ${lang === 'vi' ? 'landing-lang-btn--active' : ''}`}
+              onClick={() => lang !== 'vi' && toggleLang()}
+            >
+              VI
+            </button>
+          </div>
         </div>
       </div>
     </div>

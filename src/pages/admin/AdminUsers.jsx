@@ -110,7 +110,7 @@ export default function AdminUsers() {
   );
 
   const adminCount = users.filter((u) => u.role === 'admin').length;
-  const userCount  = users.filter((u) => u.role !== 'admin').length;
+  const userCount = users.filter((u) => u.role !== 'admin').length;
 
   return (
     <div className="admin-page">

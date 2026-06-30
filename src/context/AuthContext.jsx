@@ -41,19 +41,19 @@ async function ensureUserDoc(firebaseUser) {
       status: 'active',
       subscription: isAdmin
         ? {
-            plan: 'lifetime',
-            planName: 'Vĩnh Viễn',
-            expiryDate: null,
-            trialEndDate: null,
-            activatedAt: serverTimestamp(),
-          }
+          plan: 'lifetime',
+          planName: 'Vĩnh Viễn',
+          expiryDate: null,
+          trialEndDate: null,
+          activatedAt: serverTimestamp(),
+        }
         : {
-            plan: 'trial',
-            planName: 'Dùng thử',
-            expiryDate: null,
-            trialEndDate: Timestamp.fromDate(trialEnd),
-            activatedAt: null,
-          },
+          plan: 'trial',
+          planName: 'Dùng thử',
+          expiryDate: null,
+          trialEndDate: Timestamp.fromDate(trialEnd),
+          activatedAt: null,
+        },
       createdAt: serverTimestamp(),
     });
     const newSnap = await getDoc(ref);
