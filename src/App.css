@@ -1885,7 +1885,8 @@ body {
 .set-budget-cta {
   margin: 4px 0;
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
   text-align: center;
   background: none;
   border: none;
@@ -1894,14 +1895,15 @@ body {
 }
 
 .set-budget-link {
-  color: var(--primary);
+  color: #fff;
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
   font-style: normal;
 }
 
 .set-budget-link:hover {
-  color: var(--primary-dark);
+  opacity: 0.8;
 }
 
 /* ==================== Admin Stats Row ==================== */
