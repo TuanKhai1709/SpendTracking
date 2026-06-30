@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, doc, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import backIcon from '../../../assets/back.png';
@@ -28,20 +28,25 @@ export default function AdminUsers() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editTarget, setEditTarget] = useState(null);   // user doc being edited
+  const [permissionError, setPermissionError] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
   const [editPlan, setEditPlan] = useState('');
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
+    setPermissionError(false);
     try {
       const snap = await getDocs(collection(db, 'users'));
       const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       list.sort((a, b) => (a.email || '').localeCompare(b.email || ''));
       setUsers(list);
     } catch (err) {
-      console.error('Failed to load users', err);
+      console.error('Failed to load users', err.code, err.message);
+      if (err.code === 'permission-denied') {
+        setPermissionError(true);
+      }
     }
     setLoading(false);
   }, []);
@@ -165,6 +170,37 @@ export default function AdminUsers() {
       {/* Table */}
       {loading ? (
         <div className="admin-loading">Đang tải...</div>
+      ) : permissionError ? (
+        <div className="admin-permission-error">
+          <div className="admin-permission-error__icon">🔒</div>
+          <h3>Cần cập nhật Firestore Rules</h3>
+          <p>Để xem danh sách người dùng, hãy vào <strong>Firebase Console → Firestore → Rules</strong> và dán nội dung sau rồi bấm <strong>Publish</strong>:</p>
+          <pre className="admin-rules-code">{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if isAdmin();
+    }
+    match /packages/{id} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    match /orders/{code} {
+      allow read: if request.auth != null &&
+        (resource.data.uid == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+  }
+}`}</pre>
+          <button className="admin-edit-btn" style={{ marginTop: 12 }} onClick={fetchUsers}>
+            Thử lại
+          </button>
+        </div>
       ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
