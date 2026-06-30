@@ -39,6 +39,9 @@ jobs:
           VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_PAYOS_CLIENT_ID: ${{ secrets.VITE_PAYOS_CLIENT_ID }}
+          VITE_PAYOS_API_KEY: ${{ secrets.VITE_PAYOS_API_KEY }}
+          VITE_PAYOS_CHECKSUM_KEY: ${{ secrets.VITE_PAYOS_CHECKSUM_KEY }}
 
       - uses: actions/configure-pages@v4
 

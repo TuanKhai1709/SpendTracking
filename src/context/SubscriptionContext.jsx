@@ -8,9 +8,9 @@ import { useAuth } from './AuthContext';
 const SubscriptionContext = createContext(null);
 
 export const DEFAULT_PACKAGES = [
-  { id: '1year',    name: '1 Năm',     originalPrice: 75000,  years: 1,    order: 1 },
-  { id: '2year',    name: '2 Năm',     originalPrice: 140000, years: 2,    order: 2 },
-  { id: '3year',    name: '3 Năm',     originalPrice: 200000, years: 3,    order: 3 },
+  { id: '1year', name: '1 Năm', originalPrice: 75000, years: 1, order: 1 },
+  { id: '2year', name: '2 Năm', originalPrice: 140000, years: 2, order: 2 },
+  { id: '3year', name: '3 Năm', originalPrice: 200000, years: 3, order: 3 },
   { id: 'lifetime', name: 'Vĩnh Viễn', originalPrice: 300000, years: null, order: 4 },
 ];
 

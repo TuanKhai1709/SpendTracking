@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import PaymentModal from '../components/PaymentModal';
 import backIcon from '../../assets/back.png';
@@ -12,12 +13,36 @@ function formatVND(n) {
 export default function Subscription() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { lang } = useLang();
   const { packages, loadingPkgs, effectivePrice } = useSubscription();
   const [selectedPkg, setSelectedPkg] = useState(null);
 
+  const vi = lang === 'vi';
   const currentPlan = user?.subscription?.plan;
-
   const isCurrentPlan = (pkg) => currentPlan === pkg.id;
+
+  const txt = {
+    title:       vi ? 'Nâng cấp tài khoản' : 'Upgrade Account',
+    desc:        vi ? 'Chọn gói phù hợp để sử dụng đầy đủ tính năng SpendTracker' : 'Choose a plan to unlock all SpendTracker features',
+    loading:     vi ? 'Đang tải gói...' : 'Loading plans...',
+    current:     vi ? 'Đang dùng' : 'Current',
+    renew:       vi ? 'Gia hạn' : 'Renew',
+    using:       vi ? 'Đang sử dụng' : 'Current Plan',
+    daysLeft:    vi ? `còn ${user?.subStatus?.daysLeft} ngày` : `${user?.subStatus?.daysLeft} days left`,
+    lifetime:    vi ? 'Vĩnh Viễn' : 'Lifetime',
+    trial:       vi ? 'Dùng thử' : 'Trial',
+    expired:     vi ? 'Tài khoản đã hết hạn. Vui lòng gia hạn để tiếp tục sử dụng.' : 'Account expired. Please renew to continue.',
+    yearsDesc:   (y) => vi ? `Sử dụng ${y} năm` : `${y} year${y > 1 ? 's' : ''} access`,
+    lifetimeDesc:vi ? 'Sử dụng vĩnh viễn' : 'Lifetime access',
+  };
+
+  const getPlanStatusText = () => {
+    const sub = user?.subStatus;
+    if (!sub?.active) return null;
+    if (sub.planKey === 'lifetime') return `✓ ${txt.lifetime}`;
+    if (sub.planKey === 'trial') return `✓ ${txt.trial} · ${txt.daysLeft}`;
+    return `✓ ${user?.subscription?.planName} · ${txt.daysLeft}`;
+  };
 
   return (
     <div className="page">
@@ -25,35 +50,23 @@ export default function Subscription() {
         <button className="back-btn" onClick={() => navigate('/settings')}>
           <img src={backIcon} alt="" className="back-icon" />
         </button>
-        <h2 className="page-title">Nâng cấp tài khoản</h2>
+        <h2 className="page-title">{txt.title}</h2>
       </div>
 
       {/* Current plan banner */}
       {user?.subStatus && (
         <div className={`sub-status-banner ${user.subStatus.active ? 'sub-status-banner--active' : 'sub-status-banner--expired'}`}>
-          {user.subStatus.active ? (
-            <>
-              <span className="sub-status-icon">✓</span>
-              <span>
-                Gói <strong>{user.subStatus.label}</strong>
-                {user.subStatus.daysLeft !== Infinity && ` · còn ${user.subStatus.daysLeft} ngày`}
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="sub-status-icon">!</span>
-              <span>Tài khoản đã hết hạn. Vui lòng gia hạn để tiếp tục sử dụng.</span>
-            </>
-          )}
+          <span className="sub-status-icon">{user.subStatus.active ? '✓' : '!'}</span>
+          <span>
+            {user.subStatus.active ? getPlanStatusText() : txt.expired}
+          </span>
         </div>
       )}
 
-      <p className="sub-page-desc">
-        Chọn gói phù hợp để sử dụng đầy đủ tính năng SpendTracker
-      </p>
+      <p className="sub-page-desc">{txt.desc}</p>
 
       {loadingPkgs ? (
-        <div className="admin-loading">Đang tải gói...</div>
+        <div className="admin-loading">{txt.loading}</div>
       ) : (
         <div className="sub-pkg-list">
           {packages.map((pkg) => {
@@ -64,7 +77,7 @@ export default function Subscription() {
             return (
               <div key={pkg.id} className={`sub-pkg-card ${isCurrent ? 'sub-pkg-card--current' : ''} ${onSale ? 'sub-pkg-card--sale' : ''}`}>
                 {onSale && <span className="sub-sale-badge">SALE 🔥</span>}
-                {isCurrent && <span className="sub-current-badge">Đang dùng</span>}
+                {isCurrent && <span className="sub-current-badge">{txt.current}</span>}
 
                 <div className="sub-pkg-name">{pkg.name}</div>
 
@@ -80,7 +93,7 @@ export default function Subscription() {
                 </div>
 
                 <div className="sub-pkg-desc">
-                  {pkg.years ? `Sử dụng ${pkg.years} năm` : 'Sử dụng vĩnh viễn'}
+                  {pkg.years ? txt.yearsDesc(pkg.years) : txt.lifetimeDesc}
                 </div>
 
                 <button
@@ -88,7 +101,7 @@ export default function Subscription() {
                   disabled={isCurrent}
                   onClick={() => !isCurrent && setSelectedPkg(pkg)}
                 >
-                  {isCurrent ? 'Đang sử dụng' : 'Mua ngay'}
+                  {isCurrent ? txt.using : txt.renew}
                 </button>
               </div>
             );
