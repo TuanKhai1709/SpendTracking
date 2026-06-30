@@ -37,9 +37,6 @@ export default function AdminPackages() {
     }
     loadCounts();
   }, []);
-  // Map of packageId -> count of users on that plan
-  const [planCounts, setPlanCounts] = useState({});
-  const [totalUsers, setTotalUsers] = useState(0);
 
   const startEdit = (pkg) => {
     setEditing((prev) => ({
