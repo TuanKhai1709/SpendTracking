@@ -54,7 +54,9 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
     creating: vi ? 'Đang tạo đơn thanh toán...' : 'Creating payment...',
     hint: vi ? 'Quét mã QR bằng app ngân hàng để thanh toán' : 'Scan QR with your banking app to pay',
     openPage: vi ? 'Mở trang thanh toán' : 'Open payment page',
-    waiting: vi ? 'Đang chờ thanh toán...' : 'Waiting for payment...',
+    waiting: vi
+      ? 'Sau khi thanh toán xong khoảng 5-10 giây hãy khởi động lại trang web. Mình cảm ơn đã ủng hộ nhà phát triển nhỏ ạ!!'
+      : 'After payment, please reload the page in 5–10 seconds. Thank you so much for supporting this indie developer!!',
     close: vi ? 'Đóng' : 'Close',
     closeWarning: vi
       ? 'Bạn đã chuyển khoản chưa? Nếu đóng bây giờ và chưa chuyển, đơn sẽ bị hủy. Tiếp tục đóng?'
