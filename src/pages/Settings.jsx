@@ -60,7 +60,7 @@ export default function Settings() {
 
   const notifColor = notifPermission === 'granted' ? '#26DE81'
     : notifPermission === 'denied' ? '#FC5C65'
-    : '#aaa';
+      : '#aaa';
 
   const handleLogout = async () => {
     await logout();
@@ -142,19 +142,25 @@ export default function Settings() {
         </button>
 
         {/* Notification permission */}
-        <button className="menu-item" onClick={handleNotifToggle} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+        <div className="menu-item menu-item--notif" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
             <span className="menu-item-label">
-              🔔 {lang === 'vi' ? 'Quyền thông báo' : 'Notification Permission'}
+              {lang === 'vi' ? 'Quyền thông báo' : 'Notification Permission'}
             </span>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: notifColor }}>{notifLabel()}</span>
+            <div
+              className={`toggle-switch ${notifPermission === 'granted' ? 'on' : ''}`}
+              onClick={handleNotifToggle}
+              style={{ cursor: 'pointer', flexShrink: 0 }}
+            >
+              <div className="toggle-knob" />
+            </div>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
             {lang === 'vi'
               ? 'Khi tắt, bạn sẽ không nhận được cảnh báo khi chi tiêu vượt ngưỡng ngân sách.'
-              : 'When off, you won\'t receive alerts when spending exceeds your budget threshold.'}
+              : "When off, you won't receive alerts when spending exceeds your budget threshold."}
           </span>
-        </button>
+        </div>
         <MenuItem icon={passwordIcon} label={t('changePassword')} onClick={() => navigate('/change-password')} />
         <MenuItem icon={logoutIcon} label={t('logoutAction')} onClick={handleLogout} />
       </div>
