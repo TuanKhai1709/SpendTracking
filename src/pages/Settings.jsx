@@ -43,13 +43,13 @@ export default function Settings() {
     if (!('Notification' in window)) return;
 
     if (notifOn) {
-      // Turn OFF: just set pref false (can't revoke browser permission)
+      // Turn OFF: set pref false — BudgetCard won't fire notifications
       localStorage.setItem('notif_pref', 'false');
       setNotifOn(false);
       return;
     }
 
-    // Turn ON
+    // Turn ON: request browser permission if not yet granted
     if (notifPermission === 'denied') {
       alert(lang === 'vi'
         ? 'Thông báo đã bị chặn bởi trình duyệt. Vào Cài đặt trình duyệt → Thông báo → cho phép trang này, rồi thử lại.'
@@ -59,7 +59,7 @@ export default function Settings() {
     if (notifPermission !== 'granted') {
       const result = await Notification.requestPermission();
       setNotifPermission(result);
-      if (result !== 'granted') return; // user denied
+      if (result !== 'granted') return;
     }
     localStorage.setItem('notif_pref', 'true');
     setNotifOn(true);
