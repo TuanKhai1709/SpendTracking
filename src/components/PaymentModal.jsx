@@ -65,12 +65,14 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
 
         const code = Math.floor(Date.now() / 1000) % 1_000_000_000;
         const amount = Math.round(effectivePrice);
-        const description = `SpendTracker ${pkg.id}`.substring(0, 25);
-        const base = `${window.location.origin}${window.location.pathname}`;
-        const returnUrl = `${base}#/settings`;
-        const cancelUrl = `${base}#/subscription`;
+        // Description: ASCII only, no spaces, max 9 chars (PayOS non-linked bank limit)
+        const description = pkg.id.toUpperCase().substring(0, 9);
+        // Use URLs without # fragment — PayOS strips the fragment during signature verification
+        const base = window.location.origin + window.location.pathname;
+        const returnUrl = base;
+        const cancelUrl = base;
 
-        // Signature: keys in alphabetical order
+        // Signature: keys in alphabetical order (PayOS spec)
         const sigData = [
           `amount=${amount}`,
           `cancelUrl=${cancelUrl}`,

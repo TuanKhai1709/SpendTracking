@@ -21,6 +21,15 @@ export default function Subscription() {
   const currentPlan = user?.subscription?.plan;
   const isCurrentPlan = (pkg) => currentPlan === pkg.id;
 
+  // Firestore stores names in Vietnamese — map to English when needed
+  const EN_PKG_NAMES = {
+    '1year': '1 Year',
+    '2year': '2 Years',
+    '3year': '3 Years',
+    'lifetime': 'Lifetime',
+  };
+  const pkgName = (pkg) => vi ? pkg.name : (EN_PKG_NAMES[pkg.id] || pkg.name);
+
   const txt = {
     title: vi ? 'Nâng cấp tài khoản' : 'Upgrade Account',
     desc: vi ? 'Chọn gói phù hợp để sử dụng đầy đủ tính năng SpendTracker' : 'Choose a plan to unlock all SpendTracker features',
@@ -79,7 +88,7 @@ export default function Subscription() {
                 {onSale && <span className="sub-sale-badge">SALE 🔥</span>}
                 {isCurrent && <span className="sub-current-badge">{txt.current}</span>}
 
-                <div className="sub-pkg-name">{pkg.name}</div>
+                <div className="sub-pkg-name">{pkgName(pkg)}</div>
 
                 <div className="sub-pkg-price-row">
                   {onSale ? (
