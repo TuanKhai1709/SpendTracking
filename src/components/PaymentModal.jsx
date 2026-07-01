@@ -42,7 +42,9 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
   const [qrCode, setQrCode] = useState(null);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
   const [expiryInfo, setExpiryInfo] = useState('');
-  const [bankInfo, setBankInfo] = useState(null); // { accountNumber, accountName, bankName, description }
+  const [bankInfo, setBankInfo] = useState(null);
+  const [pollError, setPollError] = useState('');
+  const [checking, setChecking] = useState(false);
   const pollRef = useRef(null);
 
   const vi = lang === 'vi';
@@ -178,62 +180,86 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
     return () => { cancelled = true; };
   }, []);
 
-  // Poll PayOS API every 3s to detect payment (no backend)
+  // Shared logic: check PayOS status and activate subscription if PAID
+  const confirmIfPaid = async (code) => {
+    const res = await fetch(
+      `${PAYOS_BASE}/v2/payment-requests/${code}`,
+      { headers: { 'x-client-id': PAYOS_CLIENT_ID, 'x-api-key': PAYOS_API_KEY } }
+    );
+    const data = await res.json();
+    console.log('[PayOS] poll status:', data.data?.status);
+
+    if (data.data?.status === 'PAID') {
+      clearInterval(pollRef.current);
+
+      let expiryDate = null;
+      let expiryInfoText = '';
+      if (pkg.years) {
+        const exp = new Date();
+        exp.setFullYear(exp.getFullYear() + pkg.years);
+        expiryDate = Timestamp.fromDate(exp);
+        const totalDays = pkg.years * 365;
+        const expStr = exp.toLocaleDateString(vi ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        expiryInfoText = vi
+          ? `Gói ${displayName} — ${totalDays} ngày sử dụng.\nHạn dùng đến: ${expStr}`
+          : `Plan: ${displayName} — ${totalDays} days.\nExpires: ${expStr}`;
+      } else {
+        expiryInfoText = vi
+          ? `Gói ${displayName} — Sử dụng vĩnh viễn. Không có ngày hết hạn.`
+          : `Plan: ${displayName} — Lifetime access. No expiry date.`;
+      }
+
+      await updateDoc(doc(db, 'users', user.uid), {
+        'subscription.plan': pkg.id,
+        'subscription.planName': pkg.name,
+        'subscription.expiryDate': expiryDate,
+        'subscription.activatedAt': serverTimestamp(),
+      });
+      await updateDoc(doc(db, 'orders', code), { status: 'paid', paidAt: serverTimestamp() });
+      await refreshSubscription();
+      localStorage.removeItem(PENDING_KEY);
+      setExpiryInfo(expiryInfoText);
+      setStep('success');
+      return true;
+    }
+    return false;
+  };
+
+  // Poll PayOS every 3s
   useEffect(() => {
     if (step !== 'qr' || !orderCode) return;
 
     pollRef.current = setInterval(async () => {
       try {
-        const res = await fetch(
-          `${PAYOS_BASE}/v2/payment-requests/${orderCode}`,
-          { headers: { 'x-client-id': PAYOS_CLIENT_ID, 'x-api-key': PAYOS_API_KEY } }
-        );
-        const data = await res.json();
-
-        if (data.data?.status === 'PAID') {
-          clearInterval(pollRef.current);
-
-          // Calculate expiry
-          let expiryDate = null;
-          let expiryInfoText = '';
-          if (pkg.years) {
-            const exp = new Date();
-            exp.setFullYear(exp.getFullYear() + pkg.years);
-            expiryDate = Timestamp.fromDate(exp);
-            const totalDays = pkg.years * 365;
-            const expStr = exp.toLocaleDateString(vi ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            expiryInfoText = vi
-              ? `Gói ${displayName} — ${totalDays} ngày sử dụng.\nHạn dùng đến: ${expStr}`
-              : `Plan: ${displayName} — ${totalDays} days.\nExpires: ${expStr}`;
-          } else {
-            expiryInfoText = vi
-              ? `Gói ${displayName} — Sử dụng vĩnh viễn. Không có ngày hết hạn.`
-              : `Plan: ${displayName} — Lifetime access. No expiry date.`;
-          }
-
-          // Update subscription directly in Firestore (client-side)
-          await updateDoc(doc(db, 'users', user.uid), {
-            'subscription.plan': pkg.id,
-            'subscription.planName': pkg.name,
-            'subscription.expiryDate': expiryDate,
-            'subscription.activatedAt': serverTimestamp(),
-          });
-
-          await updateDoc(doc(db, 'orders', orderCode), {
-            status: 'paid',
-            paidAt: serverTimestamp(),
-          });
-
-          await refreshSubscription();
-          localStorage.removeItem(PENDING_KEY);
-          setExpiryInfo(expiryInfoText);
-          setStep('success');
-        }
-      } catch (_) { /* keep polling */ }
+        await confirmIfPaid(orderCode);
+        setPollError('');
+      } catch (err) {
+        console.warn('[PayOS] poll error:', err.message);
+        setPollError(err.message);
+      }
     }, POLL_INTERVAL);
 
     return () => clearInterval(pollRef.current);
   }, [step, orderCode]);
+
+  // Manual check triggered by button
+  const handleManualCheck = async () => {
+    if (!orderCode || checking) return;
+    setChecking(true);
+    setPollError('');
+    try {
+      const paid = await confirmIfPaid(orderCode);
+      if (!paid) {
+        setPollError(vi
+          ? 'Chưa nhận được xác nhận thanh toán. Vui lòng đợi thêm.'
+          : 'Payment not confirmed yet. Please wait a moment.');
+      }
+    } catch (err) {
+      setPollError(err.message);
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const fmtVND = (n) => (n || 0).toLocaleString('vi-VN') + '₫';
 
@@ -300,7 +326,24 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
               <span className="payment-dot" /> {txt.waiting}
             </p>
 
-            <button className="btn-secondary" style={{ width: '100%', marginTop: 8 }} onClick={handleClose}>
+            {pollError && (
+              <p style={{ fontSize: '0.75rem', color: '#FC5C65', textAlign: 'center', margin: '4px 0' }}>
+                {pollError}
+              </p>
+            )}
+
+            <button
+              className="btn-primary"
+              style={{ width: '100%', marginTop: 8, marginBottom: 6 }}
+              onClick={handleManualCheck}
+              disabled={checking}
+            >
+              {checking
+                ? (vi ? 'Đang kiểm tra...' : 'Checking...')
+                : (vi ? 'Đã chuyển khoản → Kiểm tra ngay' : 'Transferred → Check now')}
+            </button>
+
+            <button className="btn-secondary" style={{ width: '100%' }} onClick={handleClose}>
               {txt.close}
             </button>
           </>
