@@ -1,33 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLang } from '../context/LangContext';
 
-// Fire a push notification — respects both browser permission AND user pref
-function fireNotification(title, body, tag) {
-  const pref = localStorage.getItem('notif_pref');
-  const prefOn = pref === null ? true : pref === 'true'; // default ON
-  if (!prefOn) return;
-  if ('Notification' in window && Notification.permission === 'granted') {
-    try {
-      new Notification(title, { body, tag, icon: '/SpendTracking/favicon.ico' });
-    } catch (_) { }
-  }
-}
+const THRESHOLDS = [75, 90, 100];
 
-const NOTIFIED_KEY = 'budget_notified'; // localStorage key (Set of "budgetId:threshold")
-
-function getNotified() {
-  try { return new Set(JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '[]')); }
-  catch { return new Set(); }
-}
-function markNotified(key) {
-  const s = getNotified();
-  s.add(key);
-  localStorage.setItem(NOTIFIED_KEY, JSON.stringify([...s]));
-}
-
-const THRESHOLDS = [75, 90, 100]; // % levels to notify at
-
-export default function BudgetCard({ budget, spent }) {
+export default function BudgetCard({ budget, spent, onAlert }) {
   const { t, lang, formatMoney, translateCategory } = useLang();
   const percent = budget.amount > 0 ? Math.min((spent / budget.amount) * 100, 100) : 0;
   const isWarning = percent >= 75;
@@ -35,28 +11,31 @@ export default function BudgetCard({ budget, spent }) {
   const categoryLabel = budget.category === 'all' ? t('allCategories') : translateCategory(budget.category);
   const vi = lang === 'vi';
 
-  // Fire notifications at thresholds
-  useEffect(() => {
-    if (!budget?.id || budget.amount <= 0) return;
+  // Track which thresholds we've already alerted for this session
+  const alertedRef = useRef(new Set());
 
-    const notified = getNotified();
+  useEffect(() => {
+    if (!budget?.id || budget.amount <= 0 || !onAlert) return;
+
+    // Check notif_pref (default ON)
+    const pref = localStorage.getItem('notif_pref');
+    const prefOn = pref === null ? true : pref === 'true';
+    if (!prefOn) return;
 
     for (const threshold of THRESHOLDS) {
-      if (percent >= threshold) {
-        const key = `${budget.id}:${threshold}`;
-        if (!notified.has(key)) {
-          const title = vi
-            ? `⚠️ Ngân sách ${categoryLabel} đạt ${threshold}%`
-            : `⚠️ Budget "${categoryLabel}" at ${threshold}%`;
-          const body = vi
-            ? `Đã chi ${formatMoney(spent)} / ${formatMoney(budget.amount)}`
-            : `Spent ${formatMoney(spent)} of ${formatMoney(budget.amount)}`;
-          fireNotification(title, body, key);
-          markNotified(key);
-        }
+      const key = `${budget.id}:${threshold}`;
+      if (percent >= threshold && !alertedRef.current.has(key)) {
+        alertedRef.current.add(key);
+        const title = vi
+          ? `⚠️ Ngân sách "${categoryLabel}" đạt ${threshold}%`
+          : `⚠️ Budget "${categoryLabel}" at ${threshold}%`;
+        const message = vi
+          ? `Bạn đã chi ${formatMoney(spent)} / ${formatMoney(budget.amount)} (${threshold}%).`
+          : `You've spent ${formatMoney(spent)} of ${formatMoney(budget.amount)} (${threshold}%).`;
+        onAlert({ title, message });
       }
     }
-  }, [percent, budget?.id]);
+  }, [percent, budget?.id, lang]);
 
   return (
     <div className="budget-card">
@@ -79,3 +58,4 @@ export default function BudgetCard({ budget, spent }) {
     </div>
   );
 }
+

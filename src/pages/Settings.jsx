@@ -21,52 +21,21 @@ export default function Settings() {
 
   const avatarSrc = user?.photoURL || defaultAvatar;
 
-  // Notification: use localStorage pref (default true) + browser permission
+  // Notification: localStorage pref controls in-app budget modals (default ON)
   const getNotifPref = () => {
     const stored = localStorage.getItem('notif_pref');
-    return stored === null ? true : stored === 'true'; // default ON
+    return stored === null ? true : stored === 'true';
   };
 
   const [notifOn, setNotifOn] = useState(getNotifPref);
-  const [notifPermission, setNotifPermission] = useState(
-    'Notification' in window ? Notification.permission : 'unsupported'
-  );
 
-  // On mount: if pref is ON and permission is 'default', auto-request (needs page load, not gesture here)
-  // We'll request on toggle click instead (user gesture required)
-  useEffect(() => {
-    if (!('Notification' in window)) return;
-    setNotifPermission(Notification.permission);
-  }, []);
-
-  const handleNotifToggle = async () => {
-    if (!('Notification' in window)) return;
-
-    if (notifOn) {
-      // Turn OFF: set pref false — BudgetCard won't fire notifications
-      localStorage.setItem('notif_pref', 'false');
-      setNotifOn(false);
-      return;
-    }
-
-    // Turn ON: request browser permission if not yet granted
-    if (notifPermission === 'denied') {
-      alert(lang === 'vi'
-        ? 'Thông báo đã bị chặn bởi trình duyệt. Vào Cài đặt trình duyệt → Thông báo → cho phép trang này, rồi thử lại.'
-        : 'Notifications are blocked by the browser. Go to browser Settings → Notifications → allow this site, then try again.');
-      return;
-    }
-    if (notifPermission !== 'granted') {
-      const result = await Notification.requestPermission();
-      setNotifPermission(result);
-      if (result !== 'granted') return;
-    }
-    localStorage.setItem('notif_pref', 'true');
-    setNotifOn(true);
+  const handleNotifToggle = () => {
+    const next = !notifOn;
+    localStorage.setItem('notif_pref', String(next));
+    setNotifOn(next);
   };
 
-  // Toggle is visually ON when pref=true AND browser hasn't denied
-  const toggleIsOn = notifOn && notifPermission !== 'denied';
+  const toggleIsOn = notifOn;
 
   const handleLogout = async () => {
     await logout();

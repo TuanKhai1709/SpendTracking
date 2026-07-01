@@ -6,6 +6,7 @@ import { useBudget } from '../context/BudgetContext';
 import { useTransactionCache } from '../context/TransactionCacheContext';
 import WeekChart from '../components/WeekChart';
 import BudgetCard from '../components/BudgetCard';
+import NotifModal from '../components/NotifModal';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -23,6 +24,20 @@ export default function Dashboard() {
   const [recurringInvest, setRecurringInvest] = useState(0);
   const [budgetSpent, setBudgetSpent] = useState({});
   const [fetchError, setFetchError] = useState(null);
+
+  // In-app notification modals
+  const [budgetAlert, setBudgetAlert] = useState(null); // { title, message }
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Welcome modal: show once per user
+  useEffect(() => {
+    if (!user?.uid) return;
+    const key = `welcome_shown_${user.uid}`;
+    if (!localStorage.getItem(key)) {
+      setShowWelcome(true);
+      localStorage.setItem(key, '1');
+    }
+  }, [user?.uid]);
 
   const activeYM = selectedMonth || currentYM;
 
@@ -172,7 +187,12 @@ export default function Dashboard() {
           <h3>{t('budgets')}</h3>
           <div className="budget-list">
             {budgets.map((b) => (
-              <BudgetCard key={b.id} budget={b} spent={budgetSpent[b.id] || 0} />
+              <BudgetCard
+                key={b.id}
+                budget={b}
+                spent={budgetSpent[b.id] || 0}
+                onAlert={(alert) => setBudgetAlert(alert)}
+              />
             ))}
           </div>
         </div>
@@ -186,6 +206,30 @@ export default function Dashboard() {
             )}
           </p>
         </div>
+      )}
+
+      {/* Budget threshold alert modal */}
+      {budgetAlert && (
+        <NotifModal
+          icon="⚠️"
+          title={budgetAlert.title}
+          message={budgetAlert.message}
+          onClose={() => setBudgetAlert(null)}
+        />
+      )}
+
+      {/* Welcome modal (first login) */}
+      {showWelcome && (
+        <NotifModal
+          icon="🎉"
+          title={lang === 'vi' ? 'Chào mừng bạn!' : 'Welcome!'}
+          message={
+            lang === 'vi'
+              ? 'Chúc mừng bạn đã đăng nhập thành công! Hãy bắt đầu với 7 ngày dùng thử cùng những giao dịch thu - chi đầu tiên.'
+              : 'Congratulations! You\'ve logged in successfully. Start your 7-day trial by adding your first income and expense transactions.'
+          }
+          onClose={() => setShowWelcome(false)}
+        />
       )}
     </div>
   );
