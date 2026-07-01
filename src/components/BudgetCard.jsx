@@ -1,19 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useLang } from '../context/LangContext';
-
-// Ask for notification permission once (no-op if already granted/denied)
-function requestNotificationPermission() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
-}
 
 // Fire a push notification — silently fails if permission not granted
 function fireNotification(title, body, tag) {
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
       new Notification(title, { body, tag, icon: '/SpendTracking/favicon.ico' });
-    } catch (_) {}
+    } catch (_) { }
   }
 }
 
@@ -38,15 +31,6 @@ export default function BudgetCard({ budget, spent }) {
   const isDanger = percent >= 90;
   const categoryLabel = budget.category === 'all' ? t('allCategories') : translateCategory(budget.category);
   const vi = lang === 'vi';
-
-  // Request permission on first render
-  const permRequested = useRef(false);
-  useEffect(() => {
-    if (!permRequested.current) {
-      requestNotificationPermission();
-      permRequested.current = true;
-    }
-  }, []);
 
   // Fire notifications at thresholds
   useEffect(() => {

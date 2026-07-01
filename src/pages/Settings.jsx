@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -19,6 +20,47 @@ export default function Settings() {
   const { dark, toggleTheme } = useTheme();
 
   const avatarSrc = user?.photoURL || defaultAvatar;
+
+  // Notification permission state
+  const [notifPermission, setNotifPermission] = useState(
+    'Notification' in window ? Notification.permission : 'unsupported'
+  );
+
+  useEffect(() => {
+    if (!('Notification' in window)) return;
+    setNotifPermission(Notification.permission);
+  }, []);
+
+  const handleNotifToggle = async () => {
+    if (!('Notification' in window)) return;
+    if (notifPermission === 'granted') {
+      // Can't revoke programmatically — direct user to browser settings
+      alert(lang === 'vi'
+        ? 'Để tắt thông báo, vào cài đặt trình duyệt → Quyền riêng tư → Thông báo và tắt cho trang này.'
+        : 'To disable notifications, go to browser Settings → Privacy → Notifications and block this site.');
+      return;
+    }
+    if (notifPermission === 'denied') {
+      alert(lang === 'vi'
+        ? 'Thông báo đã bị chặn. Vào cài đặt trình duyệt → Thông báo và cho phép trang này.'
+        : 'Notifications are blocked. Go to browser Settings → Notifications and allow this site.');
+      return;
+    }
+    // 'default' — request permission (requires user gesture ✓)
+    const result = await Notification.requestPermission();
+    setNotifPermission(result);
+  };
+
+  const notifLabel = () => {
+    if (!('Notification' in window)) return lang === 'vi' ? 'Không hỗ trợ' : 'Not supported';
+    if (notifPermission === 'granted') return lang === 'vi' ? 'Đã bật ✓' : 'Enabled ✓';
+    if (notifPermission === 'denied') return lang === 'vi' ? 'Đã chặn ✗' : 'Blocked ✗';
+    return lang === 'vi' ? 'Chưa bật' : 'Not enabled';
+  };
+
+  const notifColor = notifPermission === 'granted' ? '#26DE81'
+    : notifPermission === 'denied' ? '#FC5C65'
+    : '#aaa';
 
   const handleLogout = async () => {
     await logout();
@@ -97,6 +139,21 @@ export default function Settings() {
           <div className={`toggle-switch ${dark ? 'on' : ''}`}>
             <div className="toggle-knob" />
           </div>
+        </button>
+
+        {/* Notification permission */}
+        <button className="menu-item" onClick={handleNotifToggle} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+            <span className="menu-item-label">
+              🔔 {lang === 'vi' ? 'Quyền thông báo' : 'Notification Permission'}
+            </span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: notifColor }}>{notifLabel()}</span>
+          </div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+            {lang === 'vi'
+              ? 'Khi tắt, bạn sẽ không nhận được cảnh báo khi chi tiêu vượt ngưỡng ngân sách.'
+              : 'When off, you won\'t receive alerts when spending exceeds your budget threshold.'}
+          </span>
         </button>
         <MenuItem icon={passwordIcon} label={t('changePassword')} onClick={() => navigate('/change-password')} />
         <MenuItem icon={logoutIcon} label={t('logoutAction')} onClick={handleLogout} />
