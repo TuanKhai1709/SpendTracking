@@ -62,7 +62,7 @@ export default function Subscription() {
           localStorage.removeItem(PENDING_KEY);
         }
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setRecovering(false));
   }, [user]);
 

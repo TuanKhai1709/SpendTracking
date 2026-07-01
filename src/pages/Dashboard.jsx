@@ -101,17 +101,22 @@ export default function Dashboard() {
       {/* Subscription expired / trial warning banner */}
       {user?.subStatus && !user.subStatus.active && (
         <div className="sub-expired-banner">
-          <span>⚠️ Tài khoản đã hết hạn.</span>
+          <span>⚠️ {lang === 'vi' ? 'Tài khoản đã hết hạn.' : 'Subscription expired.'}</span>
           <button className="sub-expired-btn" onClick={() => navigate('/subscription')}>
-            Gia hạn ngay
+            {lang === 'vi' ? 'Gia hạn ngay' : 'Renew now'}
           </button>
         </div>
       )}
       {user?.subStatus?.active && user.subStatus.daysLeft !== Infinity && user.subStatus.daysLeft <= 3 && (
         <div className="sub-warning-banner">
-          <span>⏳ Còn <strong>{user.subStatus.daysLeft} ngày</strong> sử dụng ({user.subStatus.label}).</span>
+          <span>
+            {lang === 'vi'
+              ? <>⏳ Còn <strong>{user.subStatus.daysLeft} ngày</strong> sử dụng ({user.subStatus.label}).</>
+              : <>⏳ <strong>{user.subStatus.daysLeft} day{user.subStatus.daysLeft !== 1 ? 's' : ''}</strong> left ({user.subStatus.label}).</>
+            }
+          </span>
           <button className="sub-expired-btn" onClick={() => navigate('/subscription')}>
-            Gia hạn
+            {lang === 'vi' ? 'Gia hạn' : 'Renew'}
           </button>
         </div>
       )}
