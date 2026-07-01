@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useSubscription } from '../context/SubscriptionContext';
+import { doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 import PaymentModal from '../components/PaymentModal';
 import backIcon from '../../assets/back.png';
+
+const PAYOS_CLIENT_ID = import.meta.env.VITE_PAYOS_CLIENT_ID?.trim();
+const PAYOS_API_KEY = import.meta.env.VITE_PAYOS_API_KEY?.trim();
+const PAYOS_BASE = import.meta.env.DEV ? '/payos' : 'https://api-merchant.payos.vn';
+const PENDING_KEY = 'payos_pending_order';
 
 function formatVND(n) {
   return (n || 0).toLocaleString('vi-VN') + '₫';
@@ -12,10 +19,52 @@ function formatVND(n) {
 
 export default function Subscription() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshSubscription } = useAuth();
   const { lang } = useLang();
   const { packages, loadingPkgs, effectivePrice } = useSubscription();
   const [selectedPkg, setSelectedPkg] = useState(null);
+  const [recovering, setRecovering] = useState(false);
+
+  // On mount: check if there's a pending order that was never confirmed (e.g. user closed modal early)
+  useEffect(() => {
+    if (!user || !PAYOS_CLIENT_ID) return;
+    const raw = localStorage.getItem(PENDING_KEY);
+    if (!raw) return;
+
+    let pending;
+    try { pending = JSON.parse(raw); } catch { localStorage.removeItem(PENDING_KEY); return; }
+
+    setRecovering(true);
+    fetch(`${PAYOS_BASE}/v2/payment-requests/${pending.orderCode}`, {
+      headers: { 'x-client-id': PAYOS_CLIENT_ID, 'x-api-key': PAYOS_API_KEY },
+    })
+      .then((r) => r.json())
+      .then(async (data) => {
+        if (data.data?.status === 'PAID') {
+          let expiryDate = null;
+          if (pending.pkgYears) {
+            const exp = new Date();
+            exp.setFullYear(exp.getFullYear() + pending.pkgYears);
+            expiryDate = Timestamp.fromDate(exp);
+          }
+          await updateDoc(doc(db, 'users', user.uid), {
+            'subscription.plan': pending.pkgId,
+            'subscription.planName': pending.pkgName,
+            'subscription.expiryDate': expiryDate,
+            'subscription.activatedAt': serverTimestamp(),
+          });
+          await refreshSubscription();
+          localStorage.removeItem(PENDING_KEY);
+          alert(lang === 'vi'
+            ? `Đã phát hiện thanh toán trước đó! Gói ${pending.pkgName} đã được kích hoạt.`
+            : `Previous payment detected! ${pending.pkgName} activated.`);
+        } else if (['CANCELLED', 'EXPIRED'].includes(data.data?.status)) {
+          localStorage.removeItem(PENDING_KEY);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setRecovering(false));
+  }, [user]);
 
   const vi = lang === 'vi';
   const currentPlan = user?.subscription?.plan;
@@ -61,6 +110,12 @@ export default function Subscription() {
         </button>
         <h2 className="page-title">{txt.title}</h2>
       </div>
+
+      {recovering && (
+        <div className="sub-status-banner sub-status-banner--active" style={{ justifyContent: 'center' }}>
+          ⏳ {vi ? 'Đang kiểm tra thanh toán trước...' : 'Checking previous payment...'}
+        </div>
+      )}
 
       {/* Current plan banner */}
       {user?.subStatus && (

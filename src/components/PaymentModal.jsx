@@ -8,6 +8,14 @@ const PAYOS_CLIENT_ID = import.meta.env.VITE_PAYOS_CLIENT_ID?.trim();
 const PAYOS_API_KEY = import.meta.env.VITE_PAYOS_API_KEY?.trim();
 const PAYOS_CHECKSUM_KEY = import.meta.env.VITE_PAYOS_CHECKSUM_KEY?.trim();
 const POLL_INTERVAL = 3000;
+const PENDING_KEY = 'payos_pending_order';
+
+const EN_PKG_NAMES = {
+  '1year': '1 Year',
+  '2year': '2 Years',
+  '3year': '3 Years',
+  'lifetime': 'Lifetime',
+};
 
 // In dev, use Vite proxy (/payos) to avoid CORS. In production, call PayOS directly.
 const PAYOS_BASE = import.meta.env.DEV
@@ -37,16 +45,30 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
   const pollRef = useRef(null);
 
   const vi = lang === 'vi';
+  const displayName = vi ? pkg.name : (EN_PKG_NAMES[pkg.id] || pkg.name);
+
   const txt = {
     creating: vi ? 'Đang tạo đơn thanh toán...' : 'Creating payment...',
     hint: vi ? 'Quét mã QR bằng app ngân hàng để thanh toán' : 'Scan QR with your banking app to pay',
     openPage: vi ? 'Mở trang thanh toán' : 'Open payment page',
     waiting: vi ? 'Đang chờ thanh toán...' : 'Waiting for payment...',
     close: vi ? 'Đóng' : 'Close',
+    closeWarning: vi
+      ? 'Bạn đã chuyển khoản chưa? Nếu đóng bây giờ và chưa chuyển, đơn sẽ bị hủy. Tiếp tục đóng?'
+      : 'Have you paid yet? Closing now before payment is detected may require reopening. Close anyway?',
     success: vi ? 'Thanh toán thành công!' : 'Payment successful!',
-    activated: vi ? `Tài khoản đã kích hoạt gói ${pkg.name}.` : `Account activated: ${pkg.name}.`,
+    activated: vi ? `Tài khoản đã kích hoạt gói ${displayName}.` : `Account upgraded: ${displayName}.`,
     autoClose: vi ? 'Cửa sổ tự đóng sau 3 giây...' : 'Closing in 3 seconds...',
     errTitle: vi ? 'Có lỗi xảy ra' : 'An error occurred',
+  };
+
+  const handleClose = () => {
+    if (step === 'qr') {
+      if (!window.confirm(txt.closeWarning)) return;
+    }
+    // Clear pending order from localStorage when user consciously closes
+    localStorage.removeItem(PENDING_KEY);
+    onClose();
   };
 
   // Create PayOS payment directly from browser (no backend server)
@@ -129,6 +151,14 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
         setOrderCode(String(code));
         setQrCode(data.data?.qrCode);
         setCheckoutUrl(data.data?.checkoutUrl);
+        // Save to localStorage so we can recover if modal is closed before detection
+        localStorage.setItem(PENDING_KEY, JSON.stringify({
+          orderCode: String(code),
+          pkgId: pkg.id,
+          pkgName: pkg.name,
+          pkgYears: pkg.years ?? null,
+          amount,
+        }));
         setStep('qr');
       } catch (err) {
         if (cancelled) return;
@@ -178,6 +208,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
           });
 
           await refreshSubscription();
+          localStorage.removeItem(PENDING_KEY);
           setStep('success');
           setTimeout(() => { onSuccess?.(); onClose(); }, 3000);
         }
@@ -190,7 +221,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
   const fmtVND = (n) => (n || 0).toLocaleString('vi-VN') + '₫';
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-card payment-modal" onClick={(e) => e.stopPropagation()}>
 
         {step === 'loading' && (
@@ -202,7 +233,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
 
         {step === 'qr' && (
           <>
-            <h3 className="modal-title">{pkg.name}</h3>
+            <h3 className="modal-title">{displayName}</h3>
             <p className="payment-modal__amount">{fmtVND(effectivePrice)}</p>
             <p className="payment-modal__hint">{txt.hint}</p>
 
@@ -226,7 +257,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
               <span className="payment-dot" /> {txt.waiting}
             </p>
 
-            <button className="btn-secondary" style={{ width: '100%', marginTop: 12 }} onClick={onClose}>
+            <button className="btn-secondary" style={{ width: '100%', marginTop: 12 }} onClick={handleClose}>
               {txt.close}
             </button>
           </>
