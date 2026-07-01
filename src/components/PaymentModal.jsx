@@ -4,9 +4,9 @@ import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 
-const PAYOS_CLIENT_ID = import.meta.env.VITE_PAYOS_CLIENT_ID;
-const PAYOS_API_KEY = import.meta.env.VITE_PAYOS_API_KEY;
-const PAYOS_CHECKSUM_KEY = import.meta.env.VITE_PAYOS_CHECKSUM_KEY;
+const PAYOS_CLIENT_ID = import.meta.env.VITE_PAYOS_CLIENT_ID?.trim();
+const PAYOS_API_KEY = import.meta.env.VITE_PAYOS_API_KEY?.trim();
+const PAYOS_CHECKSUM_KEY = import.meta.env.VITE_PAYOS_CHECKSUM_KEY?.trim();
 const POLL_INTERVAL = 3000;
 
 // In dev, use Vite proxy (/payos) to avoid CORS. In production, call PayOS directly.
@@ -65,14 +65,13 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
 
         const code = Math.floor(Date.now() / 1000) % 1_000_000_000;
         const amount = Math.round(effectivePrice);
-        // Description: ASCII only, no spaces, max 9 chars (PayOS non-linked bank limit)
-        const description = pkg.id.toUpperCase().substring(0, 9);
-        // Use URLs without # fragment — PayOS strips the fragment during signature verification
+        // Max 9 ASCII chars, no spaces (PayOS non-linked bank limit)
+        const description = ('ST' + pkg.id).toUpperCase().substring(0, 9);
         const base = window.location.origin + window.location.pathname;
         const returnUrl = base;
         const cancelUrl = base;
 
-        // Signature: keys in alphabetical order (PayOS spec)
+        // Signature: keys strictly alphabetical (PayOS spec)
         const sigData = [
           `amount=${amount}`,
           `cancelUrl=${cancelUrl}`,
@@ -80,7 +79,25 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
           `orderCode=${code}`,
           `returnUrl=${returnUrl}`,
         ].join('&');
+
+        // Debug info in console — open DevTools (F12 > Console) to inspect
+        console.log('[PayOS] sigData:', sigData);
+        console.log('[PayOS] checksumKey length:', PAYOS_CHECKSUM_KEY.length,
+          '| starts with:', PAYOS_CHECKSUM_KEY.substring(0, 8));
+
         const signature = await hmacSHA256(PAYOS_CHECKSUM_KEY, sigData);
+        console.log('[PayOS] computed signature:', signature);
+
+        const reqBody = {
+          orderCode: code,
+          amount,
+          description,
+          cancelUrl,
+          returnUrl,
+          signature,
+          items: [{ name: pkg.name, quantity: 1, price: amount }],
+        };
+        console.log('[PayOS] request body:', JSON.stringify(reqBody));
 
         const res = await fetch(`${PAYOS_BASE}/v2/payment-requests`, {
           method: 'POST',
@@ -89,18 +106,11 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
             'x-client-id': PAYOS_CLIENT_ID,
             'x-api-key': PAYOS_API_KEY,
           },
-          body: JSON.stringify({
-            orderCode: code,
-            amount,
-            description,
-            cancelUrl,
-            returnUrl,
-            signature,
-            items: [{ name: pkg.name, quantity: 1, price: amount }],
-          }),
+          body: JSON.stringify(reqBody),
         });
 
         const data = await res.json();
+        console.log('[PayOS] response:', JSON.stringify(data));
         if (data.code !== '00') throw new Error(data.desc || (vi ? 'Tạo đơn thất bại' : 'Failed to create payment'));
         if (cancelled) return;
 
