@@ -6,10 +6,13 @@ import { useLang } from '../context/LangContext';
 import { useCategory } from '../context/CategoryContext';
 import { useTransactionCache } from '../context/TransactionCacheContext';
 import TransactionModal from '../components/TransactionModal';
+import { useNavigate } from 'react-router-dom';
 
 export default function Income() {
   const { user } = useAuth();
   const { t, lang, formatMoney, translateCategory } = useLang();
+  const navigate = useNavigate();
+  const isExpired = user?.subStatus && !user.subStatus.active;
   const { incomeCategories: INCOME_CATEGORIES } = useCategory();
   const { getTransactionsForMonth, upsertTransaction, removeTransaction } = useTransactionCache();
   const [incomeList, setIncomeList] = useState([]);
@@ -107,6 +110,19 @@ export default function Income() {
     }
   };
 
+  const handleAddNew = () => {
+    if (isExpired) {
+      if (window.confirm(
+        lang === 'vi'
+          ? 'Tài khoản đã hết hạn. Vui lòng gia hạn để thêm giao dịch mới. Đi đến trang gia hạn?'
+          : 'Subscription expired. Please renew to add new transactions. Go to renewal page?'
+      )) navigate('/subscription');
+      return;
+    }
+    setEditItem(null);
+    setShowModal(true);
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm(t('deleteIncomeConfirm'))) {
       try {
@@ -202,12 +218,10 @@ export default function Income() {
       </div>
 
       <button
-        className="fab fab-income"
-        onClick={() => {
-          setEditItem(null);
-          setShowModal(true);
-        }}
+        className={`fab fab-income${isExpired ? ' fab--disabled' : ''}`}
+        onClick={handleAddNew}
         aria-label="Add income"
+        title={isExpired ? (lang === 'vi' ? 'Tài khoản hết hạn' : 'Subscription expired') : ''}
       >
         +
       </button>
