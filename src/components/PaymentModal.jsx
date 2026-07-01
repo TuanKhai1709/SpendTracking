@@ -41,7 +41,8 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
   const [orderCode, setOrderCode] = useState(null);
   const [qrCode, setQrCode] = useState(null);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
-  const [expiryInfo, setExpiryInfo] = useState(''); // shown in success modal
+  const [expiryInfo, setExpiryInfo] = useState('');
+  const [bankInfo, setBankInfo] = useState(null); // { accountNumber, accountName, bankName, description }
   const pollRef = useRef(null);
 
   const vi = lang === 'vi';
@@ -151,6 +152,12 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
         setOrderCode(String(code));
         setQrCode(data.data?.qrCode);
         setCheckoutUrl(data.data?.checkoutUrl);
+        setBankInfo({
+          accountNumber: data.data?.accountNumber || '',
+          accountName: data.data?.accountName || '',
+          description,
+          amount,
+        });
         // Save to localStorage so we can recover if modal is closed before detection
         localStorage.setItem(PENDING_KEY, JSON.stringify({
           orderCode: String(code),
@@ -249,7 +256,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
 
             {qrCode ? (
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrCode)}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`}
                 alt="QR"
                 className="payment-qr-img"
               />
@@ -257,17 +264,43 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
               <div className="payment-spinner" style={{ margin: '20px auto' }} />
             )}
 
-            {checkoutUrl && (
-              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="payment-modal__link">
-                {txt.openPage}
-              </a>
+            {/* Bank account details */}
+            {bankInfo && (
+              <div className="payment-bank-info">
+                <div className="payment-bank-row">
+                  <span className="payment-bank-label">{vi ? 'Ngân hàng' : 'Bank'}</span>
+                  <span className="payment-bank-value">BIDV</span>
+                </div>
+                <div className="payment-bank-row">
+                  <span className="payment-bank-label">{vi ? 'Chủ TK' : 'Account name'}</span>
+                  <span className="payment-bank-value">{bankInfo.accountName}</span>
+                </div>
+                <div className="payment-bank-row">
+                  <span className="payment-bank-label">{vi ? 'Số TK' : 'Account no.'}</span>
+                  <span className="payment-bank-value payment-bank-copy" onClick={() => navigator.clipboard?.writeText(bankInfo.accountNumber)}>
+                    {bankInfo.accountNumber} 📋
+                  </span>
+                </div>
+                <div className="payment-bank-row">
+                  <span className="payment-bank-label">{vi ? 'Số tiền' : 'Amount'}</span>
+                  <span className="payment-bank-value payment-bank-copy" onClick={() => navigator.clipboard?.writeText(String(bankInfo.amount))}>
+                    {fmtVND(bankInfo.amount)} 📋
+                  </span>
+                </div>
+                <div className="payment-bank-row">
+                  <span className="payment-bank-label">{vi ? 'Nội dung' : 'Description'}</span>
+                  <span className="payment-bank-value payment-bank-copy" onClick={() => navigator.clipboard?.writeText(bankInfo.description)}>
+                    {bankInfo.description} 📋
+                  </span>
+                </div>
+              </div>
             )}
 
             <p className="payment-modal__polling">
               <span className="payment-dot" /> {txt.waiting}
             </p>
 
-            <button className="btn-secondary" style={{ width: '100%', marginTop: 12 }} onClick={handleClose}>
+            <button className="btn-secondary" style={{ width: '100%', marginTop: 8 }} onClick={handleClose}>
               {txt.close}
             </button>
           </>

@@ -2235,18 +2235,56 @@ body {
 .payment-qr-img {
   width: 200px;
   height: 200px;
-  margin: 16px auto;
+  margin: 12px auto 8px;
   display: block;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
 
-.payment-modal__link {
-  display: inline-block;
-  font-size: 0.85rem;
+/* Bank info table inside payment modal */
+.payment-bank-info {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin: 8px 0 4px;
+  font-size: 0.82rem;
+}
+
+.payment-bank-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.payment-bank-row:last-child {
+  border-bottom: none;
+}
+
+.payment-bank-label {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.payment-bank-value {
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  word-break: break-all;
+}
+
+.payment-bank-copy {
   color: var(--primary);
-  text-decoration: underline;
-  margin-top: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.payment-bank-copy:active {
+  opacity: 0.6;
 }
 
 .payment-modal__polling {
