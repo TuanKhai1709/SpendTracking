@@ -11,6 +11,11 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
+      '/payos': {
+        target: 'https://api-merchant.payos.vn',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/payos/, ''),
+      },
     },
   }
 });

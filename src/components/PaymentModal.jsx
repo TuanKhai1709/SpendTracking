@@ -9,6 +9,11 @@ const PAYOS_API_KEY = import.meta.env.VITE_PAYOS_API_KEY;
 const PAYOS_CHECKSUM_KEY = import.meta.env.VITE_PAYOS_CHECKSUM_KEY;
 const POLL_INTERVAL = 3000;
 
+// In dev, use Vite proxy (/payos) to avoid CORS. In production, call PayOS directly.
+const PAYOS_BASE = import.meta.env.DEV
+  ? '/payos'
+  : 'https://api-merchant.payos.vn';
+
 // HMAC-SHA256 via Web Crypto API – no backend needed
 async function hmacSHA256(key, data) {
   const enc = new TextEncoder();
@@ -75,7 +80,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
         ].join('&');
         const signature = await hmacSHA256(PAYOS_CHECKSUM_KEY, sigData);
 
-        const res = await fetch('https://api-merchant.payos.vn/v2/payment-requests', {
+        const res = await fetch(`${PAYOS_BASE}/v2/payment-requests`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -131,7 +136,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
     pollRef.current = setInterval(async () => {
       try {
         const res = await fetch(
-          `https://api-merchant.payos.vn/v2/payment-requests/${orderCode}`,
+          `${PAYOS_BASE}/v2/payment-requests/${orderCode}`,
           { headers: { 'x-client-id': PAYOS_CLIENT_ID, 'x-api-key': PAYOS_API_KEY } }
         );
         const data = await res.json();
