@@ -41,7 +41,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
   const [orderCode, setOrderCode] = useState(null);
   const [qrCode, setQrCode] = useState(null);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [expiryInfo, setExpiryInfo] = useState(''); // shown in success modal
   const pollRef = useRef(null);
 
   const vi = lang === 'vi';
@@ -56,7 +56,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
     closeWarning: vi
       ? 'Bạn đã chuyển khoản chưa? Nếu đóng bây giờ và chưa chuyển, đơn sẽ bị hủy. Tiếp tục đóng?'
       : 'Have you paid yet? Closing now before payment is detected may require reopening. Close anyway?',
-    success: vi ? 'Thanh toán thành công!' : 'Payment successful!',
+    success: vi ? 'Thanh toán thành công! 🎉' : 'Payment Successful! 🎉',
     activated: vi ? `Tài khoản đã kích hoạt gói ${displayName}.` : `Account upgraded: ${displayName}.`,
     autoClose: vi ? 'Cửa sổ tự đóng sau 3 giây...' : 'Closing in 3 seconds...',
     errTitle: vi ? 'Có lỗi xảy ra' : 'An error occurred',
@@ -188,10 +188,20 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
 
           // Calculate expiry
           let expiryDate = null;
+          let expiryInfoText = '';
           if (pkg.years) {
             const exp = new Date();
             exp.setFullYear(exp.getFullYear() + pkg.years);
             expiryDate = Timestamp.fromDate(exp);
+            const totalDays = pkg.years * 365;
+            const expStr = exp.toLocaleDateString(vi ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            expiryInfoText = vi
+              ? `Gói ${displayName} — ${totalDays} ngày sử dụng.\nHạn dùng đến: ${expStr}`
+              : `Plan: ${displayName} — ${totalDays} days.\nExpires: ${expStr}`;
+          } else {
+            expiryInfoText = vi
+              ? `Gói ${displayName} — Sử dụng vĩnh viễn. Không có ngày hết hạn.`
+              : `Plan: ${displayName} — Lifetime access. No expiry date.`;
           }
 
           // Update subscription directly in Firestore (client-side)
@@ -209,8 +219,8 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
 
           await refreshSubscription();
           localStorage.removeItem(PENDING_KEY);
+          setExpiryInfo(expiryInfoText);
           setStep('success');
-          setTimeout(() => { onSuccess?.(); onClose(); }, 3000);
         }
       } catch (_) { /* keep polling */ }
     }, POLL_INTERVAL);
@@ -267,8 +277,16 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
           <div className="payment-modal__center">
             <div className="payment-success-icon">✓</div>
             <h3 className="payment-success-title">{txt.success}</h3>
-            <p className="payment-modal__hint">{txt.activated}</p>
-            <p className="payment-modal__hint" style={{ fontSize: '0.8rem', opacity: 0.6 }}>{txt.autoClose}</p>
+            {expiryInfo.split('\n').map((line, i) => (
+              <p key={i} className="payment-modal__hint" style={{ margin: '2px 0' }}>{line}</p>
+            ))}
+            <button
+              className="btn-primary"
+              style={{ width: '100%', marginTop: 20 }}
+              onClick={() => { onSuccess?.(); onClose(); }}
+            >
+              OK
+            </button>
           </div>
         )}
 
