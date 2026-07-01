@@ -334,18 +334,7 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
               </p>
             )}
 
-            <button
-              className="btn-primary"
-              style={{ width: '100%', marginTop: 8, marginBottom: 6 }}
-              onClick={handleManualCheck}
-              disabled={checking}
-            >
-              {checking
-                ? (vi ? 'Đang kiểm tra...' : 'Checking...')
-                : (vi ? 'Đã chuyển khoản → Kiểm tra ngay' : 'Transferred → Check now')}
-            </button>
-
-            <button className="btn-secondary" style={{ width: '100%' }} onClick={handleClose}>
+            <button className="btn-secondary" style={{ width: '100%', marginTop: 8 }} onClick={handleClose}>
               {txt.close}
             </button>
           </>
