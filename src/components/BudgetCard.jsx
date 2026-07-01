@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { useLang } from '../context/LangContext';
 
-// Fire a push notification — silently fails if permission not granted
+// Fire a push notification — respects both browser permission AND user pref
 function fireNotification(title, body, tag) {
+  const pref = localStorage.getItem('notif_pref');
+  const prefOn = pref === null ? true : pref === 'true'; // default ON
+  if (!prefOn) return;
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
       new Notification(title, { body, tag, icon: '/SpendTracking/favicon.ico' });

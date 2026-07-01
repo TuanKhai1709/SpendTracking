@@ -21,11 +21,19 @@ export default function Settings() {
 
   const avatarSrc = user?.photoURL || defaultAvatar;
 
-  // Notification permission state
+  // Notification: use localStorage pref (default true) + browser permission
+  const getNotifPref = () => {
+    const stored = localStorage.getItem('notif_pref');
+    return stored === null ? true : stored === 'true'; // default ON
+  };
+
+  const [notifOn, setNotifOn] = useState(getNotifPref);
   const [notifPermission, setNotifPermission] = useState(
     'Notification' in window ? Notification.permission : 'unsupported'
   );
 
+  // On mount: if pref is ON and permission is 'default', auto-request (needs page load, not gesture here)
+  // We'll request on toggle click instead (user gesture required)
   useEffect(() => {
     if (!('Notification' in window)) return;
     setNotifPermission(Notification.permission);
@@ -33,34 +41,32 @@ export default function Settings() {
 
   const handleNotifToggle = async () => {
     if (!('Notification' in window)) return;
-    if (notifPermission === 'granted') {
-      // Can't revoke programmatically — direct user to browser settings
-      alert(lang === 'vi'
-        ? 'Để tắt thông báo, vào cài đặt trình duyệt → Quyền riêng tư → Thông báo và tắt cho trang này.'
-        : 'To disable notifications, go to browser Settings → Privacy → Notifications and block this site.');
+
+    if (notifOn) {
+      // Turn OFF: just set pref false (can't revoke browser permission)
+      localStorage.setItem('notif_pref', 'false');
+      setNotifOn(false);
       return;
     }
+
+    // Turn ON
     if (notifPermission === 'denied') {
       alert(lang === 'vi'
-        ? 'Thông báo đã bị chặn. Vào cài đặt trình duyệt → Thông báo và cho phép trang này.'
-        : 'Notifications are blocked. Go to browser Settings → Notifications and allow this site.');
+        ? 'Thông báo đã bị chặn bởi trình duyệt. Vào Cài đặt trình duyệt → Thông báo → cho phép trang này, rồi thử lại.'
+        : 'Notifications are blocked by the browser. Go to browser Settings → Notifications → allow this site, then try again.');
       return;
     }
-    // 'default' — request permission (requires user gesture ✓)
-    const result = await Notification.requestPermission();
-    setNotifPermission(result);
+    if (notifPermission !== 'granted') {
+      const result = await Notification.requestPermission();
+      setNotifPermission(result);
+      if (result !== 'granted') return; // user denied
+    }
+    localStorage.setItem('notif_pref', 'true');
+    setNotifOn(true);
   };
 
-  const notifLabel = () => {
-    if (!('Notification' in window)) return lang === 'vi' ? 'Không hỗ trợ' : 'Not supported';
-    if (notifPermission === 'granted') return lang === 'vi' ? 'Đã bật ✓' : 'Enabled ✓';
-    if (notifPermission === 'denied') return lang === 'vi' ? 'Đã chặn ✗' : 'Blocked ✗';
-    return lang === 'vi' ? 'Chưa bật' : 'Not enabled';
-  };
-
-  const notifColor = notifPermission === 'granted' ? '#26DE81'
-    : notifPermission === 'denied' ? '#FC5C65'
-      : '#aaa';
+  // Toggle is visually ON when pref=true AND browser hasn't denied
+  const toggleIsOn = notifOn && notifPermission !== 'denied';
 
   const handleLogout = async () => {
     await logout();
@@ -142,13 +148,13 @@ export default function Settings() {
         </button>
 
         {/* Notification permission */}
-        <div className="menu-item menu-item--notif" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+        <div className="menu-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
             <span className="menu-item-label">
               {lang === 'vi' ? 'Quyền thông báo' : 'Notification Permission'}
             </span>
             <div
-              className={`toggle-switch ${notifPermission === 'granted' ? 'on' : ''}`}
+              className={`toggle-switch ${toggleIsOn ? 'on' : ''}`}
               onClick={handleNotifToggle}
               style={{ cursor: 'pointer', flexShrink: 0 }}
             >
