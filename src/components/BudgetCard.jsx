@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useLang } from '../context/LangContext';
+import warningIcon from '../../assets/warning.png';
 
 const THRESHOLDS = [75, 90, 100];
 
@@ -11,9 +12,6 @@ export default function BudgetCard({ budget, spent, onAlert }) {
   const categoryLabel = budget.category === 'all' ? t('allCategories') : translateCategory(budget.category);
   const vi = lang === 'vi';
 
-  // Track which thresholds we've already alerted for this session
-  const alertedRef = useRef(new Set());
-
   useEffect(() => {
     if (!budget?.id || budget.amount <= 0 || !onAlert) return;
 
@@ -23,9 +21,10 @@ export default function BudgetCard({ budget, spent, onAlert }) {
     if (!prefOn) return;
 
     for (const threshold of THRESHOLDS) {
-      const key = `${budget.id}:${threshold}`;
-      if (percent >= threshold && !alertedRef.current.has(key)) {
-        alertedRef.current.add(key);
+      // Persist alerted state in localStorage so modal only shows once ever
+      const storageKey = `budget_alert_${budget.id}_${threshold}`;
+      if (percent >= threshold && !localStorage.getItem(storageKey)) {
+        localStorage.setItem(storageKey, '1');
         const title = vi
           ? `⚠️ Ngân sách "${categoryLabel}" đạt ${threshold}%`
           : `⚠️ Budget "${categoryLabel}" at ${threshold}%`;
@@ -40,7 +39,12 @@ export default function BudgetCard({ budget, spent, onAlert }) {
   return (
     <div className="budget-card">
       <div className="budget-card-header">
-        <span className="budget-card-name">{categoryLabel}</span>
+        <span className="budget-card-name">
+          {categoryLabel}
+          {isWarning && (
+            <img src={warningIcon} alt="!" style={{ width: 16, height: 16, marginLeft: 6, verticalAlign: 'middle', opacity: 0.9 }} />
+          )}
+        </span>
         <span className="budget-card-date">{budget.endDate}</span>
       </div>
       <div className="budget-progress-bar">

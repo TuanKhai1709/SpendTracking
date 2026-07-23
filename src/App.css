@@ -70,10 +70,7 @@ body {
 }
 
 .main-content,
-.bottom-nav {
-  position: relative;
-  z-index: 1;
-}
+/* bottom-nav is fixed, defined below in the Bottom Navigation section */
 
 .main-content {
   max-width: 600px;
@@ -645,6 +642,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
+  width: 100%;
   height: var(--nav-height);
   background: var(--card);
   display: flex;
@@ -653,6 +651,10 @@ body {
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
   z-index: 100;
   padding-bottom: env(safe-area-inset-bottom, 0);
+  /* iOS Safari GPU fix - prevents nav disappearing on scroll */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .nav-item {
