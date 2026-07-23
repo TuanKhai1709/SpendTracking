@@ -17,6 +17,7 @@ export default function Report() {
   const [expenseSummary, setExpenseSummary] = useState([]);
   const [incomeSummary, setIncomeSummary] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
+  const [recurringInvest, setRecurringInvest] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
 
   const monthNames = lang === 'vi'
@@ -44,10 +45,13 @@ export default function Report() {
 
       const expByCategory = {};
       let expTotal = 0;
+      let riTotal = 0;
+      const riKey = translateCategory('Recurring Investments');
       allExpenses.forEach((d) => {
         const key = translateCategory(d.category);
         expByCategory[key] = (expByCategory[key] || 0) + d.amount;
-        expTotal += d.amount;
+        if (key !== riKey) expTotal += d.amount;
+        else riTotal += d.amount;
       });
 
       const incByCategory = {};
@@ -61,13 +65,14 @@ export default function Report() {
       setExpenseSummary(Object.entries(expByCategory).map(([category, total]) => ({ category, total })));
       setIncomeSummary(Object.entries(incByCategory).map(([category, total]) => ({ category, total })));
       setTotalExpense(expTotal);
+      setRecurringInvest(riTotal);
       setTotalIncome(incTotal);
     } catch (err) {
       console.error('Failed to fetch report', err);
     }
   };
 
-  const balance = totalIncome - totalExpense;
+  const balance = totalIncome - totalExpense - recurringInvest;
 
   return (
     <div className="page">
