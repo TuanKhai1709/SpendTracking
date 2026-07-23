@@ -69,9 +69,12 @@ export default function Dashboard() {
       let riTotal = 0;
       allExpenses.forEach((d) => {
         if (d.date) {
-          expTotal += d.amount;
           const catKey = translateCategory(d.category);
-          if (catKey === translateCategory('Recurring Investments')) riTotal += d.amount;
+          if (catKey === translateCategory('Recurring Investments')) {
+            riTotal += d.amount;
+          } else {
+            expTotal += d.amount;
+          }
         }
       });
 
@@ -109,7 +112,7 @@ export default function Dashboard() {
     }
   };
 
-  const balance = totalIncome - totalExpense;
+  const balance = totalIncome - totalExpense - recurringInvest;
 
   return (
     <div className="page">

@@ -3,15 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useSubscription } from '../context/SubscriptionContext';
-import { doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import PaymentModal from '../components/PaymentModal';
 import backIcon from '../../assets/back.png';
 
 const PAYOS_CLIENT_ID = import.meta.env.VITE_PAYOS_CLIENT_ID?.trim();
 const PAYOS_API_KEY = import.meta.env.VITE_PAYOS_API_KEY?.trim();
+const PAYOS_CHECKSUM_KEY = import.meta.env.VITE_PAYOS_CHECKSUM_KEY?.trim();
 const PAYOS_BASE = import.meta.env.DEV ? '/payos' : 'https://api-merchant.payos.vn';
 const PENDING_KEY = 'payos_pending_order';
+
+async function hmacSHA256(key, data) {
+  const enc = new TextEncoder();
+  const keyMat = await crypto.subtle.importKey(
+    'raw', enc.encode(key),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', keyMat, enc.encode(data));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 function formatVND(n) {
   return (n || 0).toLocaleString('vi-VN') + '₫';
@@ -22,8 +33,8 @@ export default function Subscription() {
   const { user, refreshSubscription } = useAuth();
   const { lang } = useLang();
   const { packages, loadingPkgs, effectivePrice } = useSubscription();
-  const [selectedPkg, setSelectedPkg] = useState(null);
   const [recovering, setRecovering] = useState(false);
+  const [buyingId, setBuyingId] = useState(null);
 
   // On mount: check if there's a pending order that was never confirmed (e.g. user closed modal early)
   useEffect(() => {
@@ -65,6 +76,54 @@ export default function Subscription() {
       .catch(() => { })
       .finally(() => setRecovering(false));
   }, [user]);
+
+  const handleBuy = async (pkg) => {
+    if (buyingId) return;
+    setBuyingId(pkg.id);
+    const price = effectivePrice(pkg);
+    try {
+      const code = Math.floor(Date.now() / 1000) % 1_000_000_000;
+      const amount = Math.round(price);
+      const description = ('ST' + pkg.id).toUpperCase().substring(0, 9);
+      const base = window.location.origin + window.location.pathname;
+      const returnUrl = base;
+      const cancelUrl = base;
+      const sigData = [
+        `amount=${amount}`,
+        `cancelUrl=${cancelUrl}`,
+        `description=${description}`,
+        `orderCode=${code}`,
+        `returnUrl=${returnUrl}`,
+      ].join('&');
+      const signature = await hmacSHA256(PAYOS_CHECKSUM_KEY, sigData);
+      const reqBody = {
+        orderCode: code, amount, description, cancelUrl, returnUrl, signature,
+        items: [{ name: pkg.name, quantity: 1, price: amount }],
+      };
+      const res = await fetch(`${PAYOS_BASE}/v2/payment-requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-client-id': PAYOS_CLIENT_ID, 'x-api-key': PAYOS_API_KEY },
+        body: JSON.stringify(reqBody),
+      });
+      const data = await res.json();
+      if (data.code !== '00') throw new Error(data.desc || (vi ? 'Tạo đơn thất bại' : 'Failed to create payment'));
+
+      await setDoc(doc(db, 'orders', String(code)), {
+        orderCode: String(code), uid: user.uid, email: user.email,
+        packageId: pkg.id, packageName: pkg.name, amount, status: 'pending',
+        createdAt: serverTimestamp(),
+      });
+      localStorage.setItem(PENDING_KEY, JSON.stringify({
+        orderCode: String(code), pkgId: pkg.id, pkgName: pkg.name,
+        pkgYears: pkg.years ?? null, amount,
+      }));
+      window.open(data.data.checkoutUrl, '_blank');
+    } catch (err) {
+      alert(vi ? `Lỗi: ${err.message}` : `Error: ${err.message}`);
+    } finally {
+      setBuyingId(null);
+    }
+  };
 
   const vi = lang === 'vi';
   const currentPlan = user?.subscription?.plan;
@@ -162,10 +221,10 @@ export default function Subscription() {
 
                 <button
                   className={`sub-pkg-btn ${isCurrent ? 'sub-pkg-btn--current' : 'btn-primary'}`}
-                  disabled={isCurrent}
-                  onClick={() => !isCurrent && setSelectedPkg(pkg)}
+                  disabled={isCurrent || buyingId === pkg.id}
+                  onClick={() => !isCurrent && handleBuy(pkg)}
                 >
-                  {isCurrent ? txt.using : txt.renew}
+                  {isCurrent ? txt.using : (buyingId === pkg.id ? (vi ? 'Đang tạo...' : 'Creating...') : txt.renew)}
                 </button>
               </div>
             );
@@ -173,14 +232,6 @@ export default function Subscription() {
         </div>
       )}
 
-      {selectedPkg && (
-        <PaymentModal
-          pkg={selectedPkg}
-          effectivePrice={effectivePrice(selectedPkg)}
-          onClose={() => setSelectedPkg(null)}
-          onSuccess={() => setSelectedPkg(null)}
-        />
-      )}
     </div>
   );
 }

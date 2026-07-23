@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -20,22 +20,6 @@ export default function Settings() {
   const { dark, toggleTheme } = useTheme();
 
   const avatarSrc = user?.photoURL || defaultAvatar;
-
-  // Notification: localStorage pref controls in-app budget modals (default ON)
-  const getNotifPref = () => {
-    const stored = localStorage.getItem('notif_pref');
-    return stored === null ? true : stored === 'true';
-  };
-
-  const [notifOn, setNotifOn] = useState(getNotifPref);
-
-  const handleNotifToggle = () => {
-    const next = !notifOn;
-    localStorage.setItem('notif_pref', String(next));
-    setNotifOn(next);
-  };
-
-  const toggleIsOn = notifOn;
 
   const handleLogout = async () => {
     await logout();
@@ -116,26 +100,6 @@ export default function Settings() {
           </div>
         </button>
 
-        {/* Notification permission */}
-        <div className="menu-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-            <span className="menu-item-label">
-              {lang === 'vi' ? 'Quyền thông báo' : 'Notification Permission'}
-            </span>
-            <div
-              className={`toggle-switch ${toggleIsOn ? 'on' : ''}`}
-              onClick={handleNotifToggle}
-              style={{ cursor: 'pointer', flexShrink: 0 }}
-            >
-              <div className="toggle-knob" />
-            </div>
-          </div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-            {lang === 'vi'
-              ? 'Khi tắt, bạn sẽ không nhận được cảnh báo khi chi tiêu vượt ngưỡng ngân sách.'
-              : "When off, you won't receive alerts when spending exceeds your budget threshold."}
-          </span>
-        </div>
         <MenuItem icon={passwordIcon} label={t('changePassword')} onClick={() => navigate('/change-password')} />
         <MenuItem icon={logoutIcon} label={t('logoutAction')} onClick={handleLogout} />
       </div>
