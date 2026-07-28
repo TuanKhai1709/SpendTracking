@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import {
-  collection, doc, getDocs, setDoc, updateDoc, onSnapshot,
+  collection, doc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from './AuthContext';
@@ -73,11 +73,31 @@ export function SubscriptionProvider({ children }) {
     await updateDoc(doc(db, 'packages', packageId), changes);
   };
 
+  const addPackage = async ({ months, originalPrice }) => {
+    const id = `${months}month_${Date.now()}`;
+    const name = months === 1 ? '1 Tháng' : `${months} Tháng`;
+    const maxOrder = packages.reduce((m, p) => Math.max(m, p.order ?? 0), 0);
+    await setDoc(doc(db, 'packages', id), {
+      id,
+      name,
+      originalPrice: Number(originalPrice),
+      months,
+      years: null,
+      order: maxOrder + 1,
+      saleEnabled: false,
+      salePrice: null,
+    });
+  };
+
+  const deletePackage = async (packageId) => {
+    await deleteDoc(doc(db, 'packages', packageId));
+  };
+
   const effectivePrice = (pkg) =>
     pkg.saleEnabled && pkg.salePrice ? pkg.salePrice : pkg.originalPrice;
 
   return (
-    <SubscriptionContext.Provider value={{ packages, loadingPkgs, updatePackage, effectivePrice }}>
+    <SubscriptionContext.Provider value={{ packages, loadingPkgs, updatePackage, addPackage, deletePackage, effectivePrice }}>
       {children}
     </SubscriptionContext.Provider>
   );

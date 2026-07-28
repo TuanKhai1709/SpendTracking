@@ -196,11 +196,12 @@ export default function PaymentModal({ pkg, effectivePrice, onClose, onSuccess }
 
       let expiryDate = null;
       let expiryInfoText = '';
-      if (pkg.years) {
+      if (pkg.years || pkg.months) {
         const exp = new Date();
-        exp.setFullYear(exp.getFullYear() + pkg.years);
+        if (pkg.years) exp.setFullYear(exp.getFullYear() + pkg.years);
+        else exp.setMonth(exp.getMonth() + pkg.months);
         expiryDate = Timestamp.fromDate(exp);
-        const totalDays = pkg.years * 365;
+        const totalDays = pkg.years ? pkg.years * 365 : pkg.months * 30;
         const expStr = exp.toLocaleDateString(vi ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
         expiryInfoText = vi
           ? `Gói ${displayName} — ${totalDays} ngày sử dụng.\nHạn dùng đến: ${expStr}`

@@ -57,6 +57,10 @@ export default function Subscription() {
             const exp = new Date();
             exp.setFullYear(exp.getFullYear() + pending.pkgYears);
             expiryDate = Timestamp.fromDate(exp);
+          } else if (pending.pkgMonths) {
+            const exp = new Date();
+            exp.setMonth(exp.getMonth() + pending.pkgMonths);
+            expiryDate = Timestamp.fromDate(exp);
           }
           await updateDoc(doc(db, 'users', user.uid), {
             'subscription.plan': pending.pkgId,
@@ -115,7 +119,7 @@ export default function Subscription() {
       });
       localStorage.setItem(PENDING_KEY, JSON.stringify({
         orderCode: String(code), pkgId: pkg.id, pkgName: pkg.name,
-        pkgYears: pkg.years ?? null, amount,
+        pkgYears: pkg.years ?? null, pkgMonths: pkg.months ?? null, amount,
       }));
       window.open(data.data.checkoutUrl, '_blank');
     } catch (err) {
@@ -140,7 +144,7 @@ export default function Subscription() {
 
   const txt = {
     title: vi ? 'Nâng cấp tài khoản' : 'Upgrade Account',
-    desc: vi ? 'Chọn gói phù hợp để sử dụng đầy đủ tính năng SpendTracker' : 'Choose a plan to unlock all SpendTracker features',
+    desc: vi ? 'Chọn gói phù hợp để sử dụng đầy đủ tính năng SpendTracking' : 'Choose a plan to unlock all SpendTracking features',
     loading: vi ? 'Đang tải gói...' : 'Loading plans...',
     current: vi ? 'Đang dùng' : 'Current',
     renew: vi ? 'Gia hạn' : 'Renew',

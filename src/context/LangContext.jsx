@@ -5,7 +5,7 @@ const EXCHANGE_RATE = 25000; // 1 USD = 25,000 VND (approximate)
 const translations = {
   en: {
     // Nav
-    appName: 'SpendTracker',
+    appName: 'SpendTracking',
     dashboard: 'Dashboard',
     expenses: 'Expenses',
     income: 'Income',
@@ -179,7 +179,7 @@ const translations = {
   },
   vi: {
     // Nav
-    appName: 'SpendTracker',
+    appName: 'SpendTracking',
     dashboard: 'Tổng quan',
     expenses: 'Chi tiêu',
     income: 'Thu nhập',
@@ -387,31 +387,17 @@ export function LangProvider({ children }) {
   const currency = lang === 'vi' ? 'VND' : 'USD';
   const currencySymbol = lang === 'vi' ? '₫' : '$';
 
-  // Format: displays amount in current currency.
-  // Data is always stored in USD. When lang=vi, multiply by exchange rate for display.
-  const formatMoney = (amountUSD) => {
-    if (lang === 'vi') {
-      const vnd = amountUSD * EXCHANGE_RATE;
-      return vnd.toLocaleString('vi-VN') + '₫';
-    }
-    return '$' + amountUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Always display in VND regardless of language
+  const formatMoney = (amount) => {
+    const vnd = amount * EXCHANGE_RATE;
+    return vnd.toLocaleString('vi-VN') + '₫';
   };
 
-  // Convert displayed input amount to USD for storage
-  const toUSD = (inputAmount) => {
-    if (lang === 'vi') {
-      return inputAmount / EXCHANGE_RATE;
-    }
-    return inputAmount;
-  };
+  // Convert VND input to stored unit (divided by exchange rate)
+  const toUSD = (inputAmount) => inputAmount / EXCHANGE_RATE;
 
-  // Convert USD stored amount to display currency for editing
-  const fromUSD = (usdAmount) => {
-    if (lang === 'vi') {
-      return Math.round(usdAmount * EXCHANGE_RATE);
-    }
-    return usdAmount;
-  };
+  // Convert stored unit to VND for display/editing
+  const fromUSD = (storedAmount) => Math.round(storedAmount * EXCHANGE_RATE);
 
   const translateCategory = (categoryKey) => {
     const mapKey = EXPENSE_CATEGORIES_MAP[categoryKey] || INCOME_CATEGORIES_MAP[categoryKey];

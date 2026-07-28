@@ -9,15 +9,22 @@ function formatVND(amount) {
   return (amount || 0).toLocaleString('vi-VN') + '₫';
 }
 
+const MONTH_OPTIONS = [1, 2, 3, 4, 5, 6];
+
 export default function AdminPackages() {
   const navigate = useNavigate();
-  const { packages, loadingPkgs, updatePackage, effectivePrice } = useSubscription();
+  const { packages, loadingPkgs, updatePackage, addPackage, deletePackage, effectivePrice } = useSubscription();
 
   const [editing, setEditing] = useState({});
   const [saving, setSaving] = useState({});
-  // Map of packageId -> count of users on that plan
   const [planCounts, setPlanCounts] = useState({});
   const [totalUsers, setTotalUsers] = useState(0);
+
+  // Add package form state
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newMonths, setNewMonths] = useState(1);
+  const [newPrice, setNewPrice] = useState('');
+  const [addingSaving, setAddingSaving] = useState(false);
 
   // Load user counts per plan
   useEffect(() => {
@@ -81,6 +88,30 @@ export default function AdminPackages() {
     }));
   };
 
+  const handleAdd = async () => {
+    if (!newPrice || Number(newPrice) <= 0) { alert('Vui lòng nhập giá hợp lệ.'); return; }
+    setAddingSaving(true);
+    try {
+      await addPackage({ months: newMonths, originalPrice: Number(newPrice) });
+      setNewMonths(1);
+      setNewPrice('');
+      setShowAddForm(false);
+    } catch (err) {
+      alert('Lỗi: ' + err.message);
+    } finally {
+      setAddingSaving(false);
+    }
+  };
+
+  const handleDelete = async (pkg) => {
+    if (!window.confirm(`Xóa gói "${pkg.name}"? Hành động này không thể hoàn tác.`)) return;
+    try {
+      await deletePackage(pkg.id);
+    } catch (err) {
+      alert('Lỗi: ' + err.message);
+    }
+  };
+
   return (
     <div className="admin-page">
       {/* Header */}
@@ -90,12 +121,53 @@ export default function AdminPackages() {
         </button>
         <div>
           <h1 className="admin-title">Quản lý Gói dịch vụ</h1>
-          <p className="admin-subtitle">Bật / Tắt giảm giá và chỉnh giá sale</p>
+          <p className="admin-subtitle">Thêm / Xóa gói, bật / tắt giảm giá và chỉnh giá sale</p>
         </div>
-        <button className="admin-nav-btn" onClick={() => navigate('/admin/users')}>
-          ← Người dùng
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+          <button className="admin-nav-btn" onClick={() => navigate('/admin/users')}>← Người dùng</button>
+          <button className="btn-primary btn--sm" onClick={() => setShowAddForm((v) => !v)}>
+            {showAddForm ? 'Huỷ thêm' : '+ Thêm gói'}
+          </button>
+        </div>
       </div>
+
+      {/* Add package form */}
+      {showAddForm && (
+        <div className="admin-pkg-card" style={{ marginBottom: 16 }}>
+          <div className="admin-pkg-name">Thêm gói mới</div>
+          <div className="admin-pkg-row" style={{ gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 140 }}>
+              <label className="admin-pkg-label">Thời hạn sử dụng</label>
+              <select
+                className="admin-input admin-input--sm"
+                value={newMonths}
+                onChange={(e) => setNewMonths(Number(e.target.value))}
+              >
+                {MONTH_OPTIONS.map((m) => (
+                  <option key={m} value={m}>{m} tháng</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 140 }}>
+              <label className="admin-pkg-label">Giá tiền (₫)</label>
+              <input
+                className="admin-input admin-input--sm"
+                type="number"
+                min={1}
+                value={newPrice}
+                onChange={(e) => setNewPrice(e.target.value)}
+                placeholder="VD: 50000"
+              />
+            </div>
+          </div>
+          <div className="admin-pkg-actions" style={{ marginTop: 8 }}>
+            <button className="btn-secondary btn--sm" onClick={() => setShowAddForm(false)}>Huỷ</button>
+            <button className="btn-primary btn--sm" onClick={handleAdd} disabled={addingSaving}>
+              {addingSaving ? 'Đang lưu...' : 'Thêm gói'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       {totalUsers > 0 && (
@@ -209,7 +281,16 @@ export default function AdminPackages() {
                       </button>
                     </>
                   ) : (
-                    <button className="admin-edit-btn" onClick={() => startEdit(pkg)}>Chỉnh sửa</button>
+                    <>
+                      <button className="admin-edit-btn" onClick={() => startEdit(pkg)}>Chỉnh sửa</button>
+                      <button
+                        className="btn-danger btn--sm"
+                        style={{ fontSize: '0.75rem', padding: '4px 10px' }}
+                        onClick={() => handleDelete(pkg)}
+                      >
+                        Xóa
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

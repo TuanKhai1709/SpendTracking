@@ -76,7 +76,7 @@ export default function Register() {
         <div className="auth-card-header">
           <div className="auth-card-icon">✨</div>
         </div>
-        <h2>{t('appName') || 'SpendTracker'}</h2>
+        <h2>{t('appName') || 'SpendTracking'}</h2>
         <p className="subtitle">{t('createYourAccount')}</p>
 
         {error && <div className="error-message">{error}</div>}
