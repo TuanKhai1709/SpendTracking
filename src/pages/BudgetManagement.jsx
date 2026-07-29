@@ -9,7 +9,7 @@ import backIcon from '../../assets/back.png';
 
 export default function BudgetManagement() {
   const navigate = useNavigate();
-  const { t, formatMoney, translateCategory, toUSD, fromUSD, currencySymbol } = useLang();
+  const { t, lang, formatMoney, translateCategory, toUSD, fromUSD, currencySymbol } = useLang();
   const { budgets, addBudget, updateBudget, deleteBudget } = useBudget();
   const { expenseCategories } = useCategory();
   const [showForm, setShowForm] = useState(false);
@@ -21,6 +21,8 @@ export default function BudgetManagement() {
     endDate: '',
   });
 
+  const [error, setError] = useState('');
+
   const resetForm = () => {
     setForm({ category: 'all', amount: '', startDate: new Date().toISOString().split('T')[0], endDate: '' });
     setEditingId(null);
@@ -29,24 +31,32 @@ export default function BudgetManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     const amt = toUSD(parseFloat(form.amount));
-    if (!amt || !form.endDate) return;
-    if (editingId) {
-      await updateBudget(editingId, {
-        category: form.category,
-        amount: amt,
-        startDate: form.startDate,
-        endDate: form.endDate,
-      });
-    } else {
-      await addBudget({
-        category: form.category,
-        amount: amt,
-        startDate: form.startDate,
-        endDate: form.endDate,
-      });
+    if (!amt || amt <= 0 || !form.endDate) {
+      setError(lang === 'vi' ? 'Vui lòng nhập số tiền hợp lệ và ngày kết thúc.' : 'Please enter a valid amount and end date.');
+      return;
     }
-    resetForm();
+    try {
+      if (editingId) {
+        await updateBudget(editingId, {
+          category: form.category,
+          amount: amt,
+          startDate: form.startDate,
+          endDate: form.endDate,
+        });
+      } else {
+        await addBudget({
+          category: form.category,
+          amount: amt,
+          startDate: form.startDate,
+          endDate: form.endDate,
+        });
+      }
+      resetForm();
+    } catch (err) {
+      setError(err.message || (lang === 'vi' ? 'Lưu thất bại.' : 'Failed to save.'));
+    }
   };
 
   const handleEdit = (b) => {
@@ -99,12 +109,12 @@ export default function BudgetManagement() {
               <label>{t('amount')} ({currencySymbol})</label>
               <input
                 type="number"
-                step="0.01"
-                min="0.01"
+                step="1"
+                min="1"
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 required
-                placeholder="0.00"
+                placeholder={lang === 'vi' ? 'VD: 500000' : 'e.g. 500000'}
               />
             </div>
             <div className="form-group">
@@ -129,6 +139,7 @@ export default function BudgetManagement() {
               <button type="button" className="btn" onClick={resetForm}>{t('cancel')}</button>
               <button type="submit" className="btn btn-primary">{editingId ? t('update') : t('add')}</button>
             </div>
+            {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: 8, textAlign: 'center' }}>{error}</p>}
           </form>
         </div>
       )}

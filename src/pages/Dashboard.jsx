@@ -93,11 +93,13 @@ export default function Dashboard() {
         const endDate = new Date(`${b.endDate}T00:00:00`);
         endDate.setDate(endDate.getDate() + 1);
         const budgetExpenses = await getTransactionsForRange('expense', b.startDate, formatDate(endDate));
-        const budgetCatKey = b.category === 'all' ? 'all' : translateCategory(b.category);
         const filtered = budgetExpenses.filter((e) => {
           const inRange = e.date >= b.startDate && e.date <= b.endDate;
           if (b.category === 'all') return inRange;
-          return inRange && translateCategory(e.category) === budgetCatKey;
+          // Match by raw key first (most precise), then by translated name (handles renamed categories)
+          const directMatch = e.category === b.category;
+          const translatedMatch = translateCategory(e.category) === translateCategory(b.category);
+          return inRange && (directMatch || translatedMatch);
         });
         return [b.id, filtered.reduce((sum, expense) => sum + expense.amount, 0)];
       }));
