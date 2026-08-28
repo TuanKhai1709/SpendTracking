@@ -2776,3 +2776,223 @@ body {
   color: var(--text-secondary);
   margin-bottom: 6px;
 }
+/* ==================== User Guide Page ==================== */
+
+.guide-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 16px 80px;
+}
+
+/* Section headers */
+.guide-section-header {
+  text-align: center;
+  margin: 32px 0 20px;
+}
+
+.guide-section-header--second {
+  margin-top: 48px;
+}
+
+.guide-section-badge {
+  display: inline-block;
+  padding: 8px 24px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.guide-badge--intro {
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  color: #fff;
+}
+
+.guide-badge--how {
+  background: linear-gradient(135deg, #26DE81 0%, #20A664 100%);
+  color: #fff;
+}
+
+.guide-section-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Guide items */
+.guide-item {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.guide-item__label {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.guide-item__label--green {
+  background: var(--success-light);
+  color: #16a34a;
+}
+
+[data-theme="dark"] .guide-item__label--green {
+  color: var(--success);
+}
+
+.guide-item__body {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+.guide-item--alt .guide-item__body {
+  grid-template-columns: 160px 1fr;
+}
+
+.guide-item__img-wrap {
+  padding: 16px 12px 16px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.guide-item__img {
+  width: 100%;
+  max-width: 130px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: block;
+  object-fit: contain;
+}
+
+.guide-item__text {
+  padding: 16px 16px 16px 4px;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.guide-item__text p {
+  margin-bottom: 10px;
+}
+
+.guide-item__text p:last-child {
+  margin-bottom: 0;
+}
+
+.guide-item__text ul {
+  margin: 6px 0 10px 0;
+  padding-left: 18px;
+}
+
+.guide-item__text ul li {
+  margin-bottom: 6px;
+}
+
+/* Numbered circle */
+.guide-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* Footer */
+.guide-footer {
+  text-align: center;
+  padding: 24px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ---- Responsive ---- */
+
+/* Tablet: wider image column */
+@media (min-width: 520px) {
+  .guide-item__body,
+  .guide-item--alt .guide-item__body {
+    grid-template-columns: 200px 1fr;
+  }
+
+  .guide-item__img {
+    max-width: 170px;
+  }
+
+  .guide-item__text {
+    font-size: 0.9rem;
+    padding: 18px 18px 18px 6px;
+  }
+}
+
+/* Desktop: wider image column */
+@media (min-width: 768px) {
+  .guide-page {
+    padding: 24px 24px 80px;
+  }
+
+  .guide-item__body,
+  .guide-item--alt .guide-item__body {
+    grid-template-columns: 230px 1fr;
+  }
+
+  .guide-item__img {
+    max-width: 200px;
+  }
+
+  .guide-item__img-wrap {
+    padding: 20px 14px 20px 20px;
+  }
+
+  .guide-item__text {
+    font-size: 0.95rem;
+    padding: 20px 20px 20px 8px;
+  }
+
+  .guide-section-badge {
+    font-size: 1.1rem;
+    padding: 10px 30px;
+  }
+}
+
+/* Small mobile: stack image above text */
+@media (max-width: 400px) {
+  .guide-item__body,
+  .guide-item--alt .guide-item__body {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-item__img-wrap {
+    padding: 14px 16px 0;
+    justify-content: flex-start;
+  }
+
+  .guide-item__img {
+    max-width: 110px;
+  }
+
+  .guide-item__text {
+    padding: 12px 16px 16px;
+  }
+}

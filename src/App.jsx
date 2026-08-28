@@ -26,6 +26,7 @@ import Profile from './pages/Profile';
 import Subscription from './pages/Subscription';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminPackages from './pages/admin/AdminPackages';
+import UserGuide from './pages/UserGuide';
 import './App.css';
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
               <Route path="/recurring" element={<RecurringExpenses />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/subscription" element={<Subscription />} />
+              <Route path="/guide" element={<UserGuide />} />
               {/* Admin-only routes (no Navbar) */}
               <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
               <Route path="/admin/packages" element={<AdminRoute><AdminPackages /></AdminRoute>} />

@@ -101,6 +101,10 @@ export default function Settings() {
         </button>
 
         <MenuItem icon={passwordIcon} label={t('changePassword')} onClick={() => navigate('/change-password')} />
+        <button className="menu-item" onClick={() => navigate('/guide')}>
+          <span className="menu-item-label">{lang === 'vi' ? 'Sơ lược & Hướng dẫn sử dụng' : 'Overview & User Guide'}</span>
+          <span className="profile-menu-chevron">›</span>
+        </button>
         <MenuItem icon={logoutIcon} label={t('logoutAction')} onClick={handleLogout} />
       </div>
     </div>
