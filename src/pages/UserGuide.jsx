@@ -39,6 +39,8 @@ export default function UserGuide() {
         </p>
       </div>
 
+      <div className="guide-content-block">
+
       {/* Dashboard */}
       <div className="guide-item">
         <div className="guide-item__label">
@@ -143,7 +145,7 @@ export default function UserGuide() {
       </div>
 
       {/* Cài đặt */}
-      <div className="guide-item guide-item--alt">
+      <div className="guide-item">
         <div className="guide-item__label">
           {isVi ? 'Cài đặt — Tuỳ chỉnh ứng dụng' : 'Settings — Customize the App'}
         </div>
@@ -183,6 +185,8 @@ export default function UserGuide() {
         </div>
       </div>
 
+      </div>{/* end guide-content-block intro */}
+
       {/* ── SECTION 2: HƯỚNG DẪN SỬ DỤNG ── */}
       <div className="guide-section-header guide-section-header--second">
         <span className="guide-section-badge guide-badge--how">
@@ -194,6 +198,8 @@ export default function UserGuide() {
             : 'Make the most of advanced features to manage your finances more intelligently.'}
         </p>
       </div>
+
+      <div className="guide-content-block">
 
       {/* Báo cáo */}
       <div className="guide-item">
@@ -237,7 +243,7 @@ export default function UserGuide() {
       </div>
 
       {/* Quản lý danh mục */}
-      <div className="guide-item guide-item--alt">
+      <div className="guide-item">
         <div className="guide-item__label guide-item__label--green">
           {isVi ? 'Quản lý Danh mục' : 'Category Management'}
         </div>
@@ -305,7 +311,7 @@ export default function UserGuide() {
       </div>
 
       {/* Chi phí định kì */}
-      <div className="guide-item guide-item--alt">
+      <div className="guide-item">
         <div className="guide-item__label guide-item__label--green">
           {isVi ? 'Tự động thêm Chi phí cố định' : 'Auto-add Recurring Expenses'}
         </div>
@@ -332,6 +338,8 @@ export default function UserGuide() {
           </div>
         </div>
       </div>
+
+      </div>{/* end guide-content-block how-to */}
 
       {/* Footer note */}
       <div className="guide-footer">
