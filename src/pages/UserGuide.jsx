@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
 import backIcon from '../../assets/back.png';
 import comp1 from '../../assets/guide_component_1.png';
@@ -28,246 +28,208 @@ export default function UserGuide() {
       </div>
 
       {/* ── SECTION 1: GIỚI THIỆU ── */}
-      <div className="guide-section-header">
-        <span className="guide-section-badge guide-badge--intro">
-          {isVi ? '📱 Giới thiệu' : '📱 Overview'}
-        </span>
-        <p className="guide-section-desc">
-          {isVi
-            ? 'SpendTracking gồm 4 màn hình chính, mỗi màn hình phục vụ một mục đích riêng để giúp bạn quản lý tài chính toàn diện.'
-            : 'SpendTracking has 4 main screens, each serving a specific purpose to help you manage your finances comprehensively.'}
-        </p>
+      <div className="guide-big-title guide-big-title--purple">
+        {isVi ? 'GIỚI THIỆU' : 'OVERVIEW'}
       </div>
 
-      <div className="guide-content-block">
+      <div className="guide-intro-block">
+        {isVi ? (
+          <>
+            <p>— Chào mừng bạn đến với <strong>Spend Tracking</strong> – giải pháp đơn giản, trực quan và hiệu quả giúp bạn làm chủ dòng tiền cá nhân mỗi ngày!</p>
+            <p>— Bạn có bao giờ tự hỏi: <em>Vì sao tháng nào mình cũng làm việc chăm chỉ, tăng ca làm thêm giờ, nhưng cứ đến cuối tháng là tài khoản lại về số 0 mà không hiểu tiền đã "bay" đi đâu mất?</em> Hay làm sao để vừa có thể thoải mái tận hưởng cuộc sống, vừa tích lũy được một khoản tiết kiệm cho riêng mình mà không phải chịu áp lực?</p>
+            <p>— Vì thế, mình tin rằng việc quản lý tài chính không nên là một công việc phức tạp hay gây căng thẳng. Với Spend Tracking, bạn có thể dễ dàng theo dõi từng đồng chi tiêu, "nhận diện" những khoản chi vô hình đang bào mòn ví tiền của bạn, từ đó xây dựng thói quen tiết kiệm và thiết lập hạn mức thông minh chỉ sau vài thao tác chạm.</p>
+          </>
+        ) : (
+          <>
+            <p>— Welcome to <strong>Spend Tracking</strong> – a simple, intuitive and effective solution to help you take control of your personal cash flow every day!</p>
+            <p>— Have you ever wondered: <em>Why do I work hard every month yet always end up with an empty account by month-end, with no idea where the money went?</em> Or how to enjoy life freely while still building personal savings without the stress?</p>
+            <p>— That's why managing finances shouldn't be complicated or stressful. With Spend Tracking, you can easily track every expense, "identify" invisible costs draining your wallet, and build smart saving habits in just a few taps.</p>
+          </>
+        )}
+      </div>
 
-      {/* Dashboard */}
-      <div className="guide-item">
-        <div className="guide-item__label">
-          {isVi ? 'Trang chủ — Tổng quan tài chính' : 'Home — Financial Overview'}
+      {/* Screen 1: Dashboard */}
+      <div className="guide-screen-item">
+        <div className="guide-screen-label">
+          {isVi ? 'Trang Home (Giao diện chính):' : 'Home Screen (Main Interface):'}
         </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp1} alt="Dashboard" className="guide-item__img" />
+        <div className="guide-screen-body">
+          <div className="guide-screen-text">
+            <p><span className="guide-num">1</span> {isVi
+              ? 'Đây là trang luôn hiển thị một biểu đồ để so sánh Chi tiêu và Thu nhập trực quan nhất.'
+              : 'This screen always shows a chart to visually compare your Expenses and Income.'}</p>
+            <p><span className="guide-num">2</span> {isVi
+              ? 'Phần "Hiện tại" hiển thị các chỉ số của tháng: Đầu tư định kì – Tổng chi tiêu – Tổng thu nhập – Số dư. Những chỉ số này giúp bạn quản lý chi tiêu tốt hơn!'
+              : 'The "Current" tab shows monthly indicators: Recurring investments – Total expenses – Total income – Balance.'}</p>
+            <p><span className="guide-num">3</span> {isVi
+              ? 'Tiếp đến là phần hạn mức, cực kì quan trọng — luôn hiển thị ở trang chủ để bạn tiện theo dõi.'
+              : 'The budget section is extremely important and always shown on the home screen for easy monitoring.'}</p>
           </div>
-          <div className="guide-item__text">
+          <div className="guide-screen-img">
+            <img src={comp1} alt="Dashboard" className="guide-img" />
+          </div>
+        </div>
+      </div>
+
+      {/* Screen 2: Expenses */}
+      <div className="guide-screen-item">
+        <div className="guide-screen-label">
+          {isVi ? 'Chi tiêu – Ghi nhận khoản chi:' : 'Expenses – Record Spending:'}
+        </div>
+        <div className="guide-screen-body">
+          <div className="guide-screen-text">
             {isVi ? (
               <>
-                <p>Màn hình chính hiển thị <strong>biểu đồ Thu nhập & Chi tiêu</strong> theo 7 ngày, 14 ngày hoặc tháng này, giúp bạn nắm nhanh xu hướng tài chính của mình.</p>
-                <p>Bên dưới biểu đồ là 4 thẻ tóm tắt:</p>
-                <ul>
-                  <li><strong>Đầu tư định kì</strong> — tổng các khoản đầu tư tự động.</li>
-                  <li><strong>Tổng chi tiêu</strong> — tổng tiền đã chi trong kỳ.</li>
-                  <li><strong>Tổng thu nhập</strong> — tổng tiền đã nhận trong kỳ.</li>
-                  <li><strong>Số dư</strong> — chênh lệch thu nhập và chi tiêu.</li>
-                </ul>
-                <p>Cuối trang là lời nhắc <em>"Đặt hạn mức ngay."</em> — gợi ý bạn thiết lập ngân sách để kiểm soát chi tiêu tốt hơn.</p>
+                <p><span className="guide-num">1</span> Màn hình <strong>Chi tiêu</strong> cho phép lọc giao dịch theo <em>Năm, Tháng, Ngày</em> và <em>Danh mục</em>.</p>
+                <p><span className="guide-num">2</span> Nhấn nút <strong>+</strong> (góc dưới phải) để thêm khoản chi mới: tiêu đề, danh mục, số tiền, ngày.</p>
+                <p><span className="guide-num">3</span> Nhấn vào bất kỳ giao dịch nào để <strong>chỉnh sửa</strong> hoặc <strong>xóa</strong>.</p>
               </>
             ) : (
               <>
-                <p>The home screen shows an <strong>Income & Expense chart</strong> for 7 days, 14 days, or this month, giving you a quick overview of your financial trends.</p>
-                <p>Below the chart are 4 summary cards:</p>
-                <ul>
-                  <li><strong>Recurring investments</strong> — total automatic investments.</li>
-                  <li><strong>Total expenses</strong> — total money spent in the period.</li>
-                  <li><strong>Total income</strong> — total money received in the period.</li>
-                  <li><strong>Balance</strong> — the difference between income and expenses.</li>
-                </ul>
-                <p>At the bottom is the reminder <em>"Set a limit now."</em> — suggesting you set a budget for better spending control.</p>
+                <p><span className="guide-num">1</span> Filter transactions by <em>Year, Month, Day</em> and <em>Category</em>.</p>
+                <p><span className="guide-num">2</span> Tap <strong>+</strong> to add a new expense: title, category, amount, date.</p>
+                <p><span className="guide-num">3</span> Tap any transaction to <strong>edit</strong> or <strong>delete</strong> it.</p>
               </>
             )}
+          </div>
+          <div className="guide-screen-img">
+            <img src={comp2} alt="Expenses" className="guide-img" />
           </div>
         </div>
       </div>
 
-      {/* Chi tiêu */}
-      <div className="guide-item guide-item--alt">
-        <div className="guide-item__label">
-          {isVi ? 'Chi tiêu — Ghi nhận khoản chi' : 'Expenses — Record Spending'}
+      {/* Screen 3: Income */}
+      <div className="guide-screen-item">
+        <div className="guide-screen-label">
+          {isVi ? 'Thu nhập – Ghi nhận khoản thu:' : 'Income – Record Earnings:'}
         </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp2} alt="Expenses" className="guide-item__img" />
-          </div>
-          <div className="guide-item__text">
+        <div className="guide-screen-body">
+          <div className="guide-screen-text">
             {isVi ? (
               <>
-                <p>Màn hình <strong>Chi tiêu</strong> cho phép bạn lọc giao dịch theo <em>Năm, Tháng, Ngày</em> và <em>Danh mục</em>, giúp dễ dàng tra cứu lại từng khoản chi.</p>
-                <p>Nhấn nút <strong>+</strong> (góc dưới phải) để thêm khoản chi mới. Mỗi giao dịch gồm:</p>
-                <ul>
-                  <li>Tiêu đề mô tả.</li>
-                  <li>Danh mục (Ăn uống, Đi lại, Mua sắm...).</li>
-                  <li>Số tiền và Ngày giao dịch.</li>
-                </ul>
-                <p>Bạn có thể nhấn vào bất kỳ giao dịch nào để <strong>chỉnh sửa</strong> hoặc <strong>xóa</strong> khi cần.</p>
+                <p><span className="guide-num">1</span> Màn hình <strong>Thu nhập</strong> hoạt động tương tự Chi tiêu, ghi lại mọi nguồn thu: Lương, Thưởng, Đầu tư, Tiền tip...</p>
+                <p><span className="guide-num">2</span> Bộ lọc <em>Năm / Tháng / Ngày / Danh mục</em> giúp xem thu nhập từng giai đoạn, đối chiếu với chi tiêu để tính <strong>Số dư thực tế</strong>.</p>
+                <p><span className="guide-num">3</span> Ghi nhận đầy đủ thu nhập giúp báo cáo phản ánh đúng thực trạng và lên kế hoạch tiết kiệm chính xác hơn.</p>
               </>
             ) : (
               <>
-                <p>The <strong>Expenses</strong> screen lets you filter transactions by <em>Year, Month, Day</em> and <em>Category</em>, making it easy to look up any expense.</p>
-                <p>Tap the <strong>+</strong> button (bottom right) to add a new expense. Each transaction includes:</p>
-                <ul>
-                  <li>A descriptive title.</li>
-                  <li>Category (Food, Transport, Shopping...).</li>
-                  <li>Amount and Transaction date.</li>
-                </ul>
-                <p>Tap any transaction to <strong>edit</strong> or <strong>delete</strong> it.</p>
+                <p><span className="guide-num">1</span> Works like Expenses — record all income: Salary, Bonus, Investment, Tips...</p>
+                <p><span className="guide-num">2</span> Filters let you view income per period and compare with expenses for your <strong>actual balance</strong>.</p>
+                <p><span className="guide-num">3</span> Complete income records give a solid basis for accurate saving plans.</p>
               </>
             )}
+          </div>
+          <div className="guide-screen-img">
+            <img src={comp3} alt="Income" className="guide-img" />
           </div>
         </div>
       </div>
 
-      {/* Thu nhập */}
-      <div className="guide-item">
-        <div className="guide-item__label">
-          {isVi ? 'Thu nhập — Ghi nhận khoản thu' : 'Income — Record Earnings'}
+      {/* Screen 4: Settings */}
+      <div className="guide-screen-item">
+        <div className="guide-screen-label">
+          {isVi ? 'Cài đặt – Trung tâm điều khiển:' : 'Settings – Control Center:'}
         </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp3} alt="Income" className="guide-item__img" />
-          </div>
-          <div className="guide-item__text">
+        <div className="guide-screen-body">
+          <div className="guide-screen-text">
             {isVi ? (
               <>
-                <p>Màn hình <strong>Thu nhập</strong> hoạt động tương tự Chi tiêu, cho phép bạn ghi lại mọi nguồn thu: Lương, Thưởng, Đầu tư, Tiền tip...</p>
-                <p>Bộ lọc <em>Năm / Tháng / Ngày / Danh mục</em> giúp bạn dễ dàng xem thu nhập từng giai đoạn, đối chiếu với chi tiêu để tính ra <strong>Số dư thực tế</strong>.</p>
-                <p>Việc ghi nhận đầy đủ thu nhập giúp báo cáo phản ánh đúng thực trạng tài chính, từ đó bạn mới có cơ sở để lên kế hoạch tiết kiệm chính xác.</p>
-              </>
-            ) : (
-              <>
-                <p>The <strong>Income</strong> screen works similarly to Expenses, letting you record all income sources: Salary, Bonus, Investment, Tips...</p>
-                <p>The <em>Year / Month / Day / Category</em> filters let you view income for any period and compare it with expenses to calculate your <strong>actual balance</strong>.</p>
-                <p>Fully recording your income ensures reports accurately reflect your financial situation, giving you a solid basis for saving plans.</p>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Cài đặt */}
-      <div className="guide-item">
-        <div className="guide-item__label">
-          {isVi ? 'Cài đặt — Tuỳ chỉnh ứng dụng' : 'Settings — Customize the App'}
-        </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp4} alt="Settings" className="guide-item__img" />
-          </div>
-          <div className="guide-item__text">
-            {isVi ? (
-              <>
-                <p>Màn hình <strong>Cài đặt</strong> là trung tâm điều khiển của ứng dụng, tổng hợp các tính năng quản lý và tuỳ chỉnh:</p>
-                <ul>
-                  <li><strong>Tài khoản</strong> — xem & chỉnh sửa hồ sơ cá nhân.</li>
-                  <li><strong>Báo cáo</strong> — xem báo cáo tài chính chi tiết.</li>
+                <p><span className="guide-num">1</span> Màn hình <strong>Cài đặt</strong> tổng hợp các tính năng quản lý và tuỳ chỉnh:</p>
+                <ul className="guide-feat-list">
+                  <li><strong>Tài khoản</strong> — xem & chỉnh sửa hồ sơ.</li>
+                  <li><strong>Báo cáo</strong> — báo cáo tài chính chi tiết.</li>
                   <li><strong>Quản lý danh mục</strong> — thêm/sửa/xóa danh mục.</li>
-                  <li><strong>Đặt hạn mức</strong> — thiết lập ngân sách theo danh mục.</li>
-                  <li><strong>Chi phí định kì</strong> — tự động thêm chi phí hàng tháng.</li>
-                  <li><strong>Ngôn ngữ</strong> — chuyển đổi Tiếng Việt / English.</li>
+                  <li><strong>Đặt hạn mức</strong> — ngân sách theo danh mục.</li>
+                  <li><strong>Chi phí định kì</strong> — tự động thêm hàng tháng.</li>
+                  <li><strong>Ngôn ngữ</strong> — Tiếng Việt / English.</li>
                   <li><strong>Chế độ tối</strong> — bật/tắt giao diện tối.</li>
                 </ul>
               </>
             ) : (
               <>
-                <p>The <strong>Settings</strong> screen is the app's control center, consolidating all management and customization features:</p>
-                <ul>
-                  <li><strong>Account</strong> — view & edit your profile.</li>
-                  <li><strong>Report</strong> — view detailed financial reports.</li>
-                  <li><strong>Category Management</strong> — add/edit/delete categories.</li>
-                  <li><strong>Set Budget</strong> — set budgets per category.</li>
-                  <li><strong>Recurring Expenses</strong> — auto-add monthly costs.</li>
-                  <li><strong>Language</strong> — switch between Vietnamese / English.</li>
-                  <li><strong>Dark Mode</strong> — toggle dark interface.</li>
+                <p><span className="guide-num">1</span> <strong>Settings</strong> is the control center with all features:</p>
+                <ul className="guide-feat-list">
+                  <li><strong>Account</strong> — view & edit profile.</li>
+                  <li><strong>Report</strong> — detailed financial reports.</li>
+                  <li><strong>Categories</strong> — add/edit/delete categories.</li>
+                  <li><strong>Set Budget</strong> — per-category limits.</li>
+                  <li><strong>Recurring</strong> — auto monthly expenses.</li>
+                  <li><strong>Language</strong> — Vietnamese / English.</li>
+                  <li><strong>Dark Mode</strong> — toggle dark theme.</li>
                 </ul>
               </>
             )}
           </div>
+          <div className="guide-screen-img">
+            <img src={comp4} alt="Settings" className="guide-img" />
+          </div>
         </div>
       </div>
-
-      </div>{/* end guide-content-block intro */}
 
       {/* ── SECTION 2: HƯỚNG DẪN SỬ DỤNG ── */}
-      <div className="guide-section-header guide-section-header--second">
-        <span className="guide-section-badge guide-badge--how">
-          {isVi ? '📖 Hướng dẫn sử dụng' : '📖 How to Use'}
-        </span>
-        <p className="guide-section-desc">
-          {isVi
-            ? 'Tận dụng tối đa các tính năng chuyên sâu để kiểm soát tài chính một cách thông minh hơn.'
-            : 'Make the most of advanced features to manage your finances more intelligently.'}
-        </p>
+      <div className="guide-big-title guide-big-title--green">
+        {isVi ? 'HƯỚNG DẪN SỬ DỤNG' : 'HOW TO USE'}
       </div>
 
-      <div className="guide-content-block">
-
-      {/* Báo cáo */}
-      <div className="guide-item">
-        <div className="guide-item__label guide-item__label--green">
+      {/* Feature 1: Report */}
+      <div className="guide-howto-item">
+        <div className="guide-howto-label">
           {isVi ? 'Xem Báo cáo hàng tháng' : 'View Monthly Report'}
         </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp5} alt="Report" className="guide-item__img" />
+        <div className="guide-howto-body">
+          <div className="guide-howto-img">
+            <img src={comp5} alt="Report" className="guide-img" />
           </div>
-          <div className="guide-item__text">
+          <div className="guide-howto-text">
             {isVi ? (
               <>
-                <p><span className="guide-num">1</span> Báo cáo sẽ giúp bạn hiểu rõ tiền của bạn được chi vào những mục đích gì. Việc này có lợi như thế nào?</p>
-                <ul>
-                  <li>Giúp bạn biết được những khoản chi nào <strong>không có lợi</strong>, xác định được các khoản chi tiêu theo <em>"cảm xúc"</em>.</li>
-                  <li>Giúp bạn kịp thời <strong>điều chỉnh lại chi tiêu</strong> trong những tháng kế tiếp, để tránh việc <em>"làm hoài mà không thấy tiền đâu"</em>.</li>
+                <p><span className="guide-num">1</span> Báo cáo giúp bạn hiểu rõ tiền được chi vào đâu. Lợi ích:</p>
+                <ul className="guide-feat-list">
+                  <li>Biết khoản chi nào <strong>không có lợi</strong>, xác định chi tiêu theo <em>"cảm xúc"</em>.</li>
+                  <li>Kịp thời <strong>điều chỉnh chi tiêu</strong> những tháng kế tiếp, tránh <em>"làm hoài mà không thấy tiền đâu"</em>.</li>
                 </ul>
-                <p><span className="guide-num">2</span> <strong>Bonus:</strong></p>
-                <ul>
-                  <li>Ngoài ra, Báo cáo còn có thể được xem <strong>theo năm</strong> — việc này vô cùng quan trọng vì bạn sẽ không thể tưởng tượng con số bạn chi tiêu trong một năm có thể lớn hơn nhiều so với suy nghĩ của bạn.</li>
-                  <li>Và dựa trên chi tiêu hàng tháng, bạn có thể ước lượng cần bao nhiêu để lập <strong>"Ngân sách dự phòng"</strong> trong khoảng 4–6 tháng.</li>
-                </ul>
+                <p><span className="guide-num">2</span> <strong>Bonus:</strong> Xem báo cáo <strong>theo năm</strong> — con số cả năm có thể lớn hơn bạn tưởng. Dựa đó ước lượng <strong>"Ngân sách dự phòng"</strong> 4–6 tháng.</p>
               </>
             ) : (
               <>
-                <p><span className="guide-num">1</span> The Report helps you understand where your money goes. Why does this matter?</p>
-                <ul>
-                  <li>It shows you which expenses are <strong>unnecessary</strong> and identifies spending driven by <em>"impulse"</em>.</li>
-                  <li>It helps you <strong>adjust spending</strong> in coming months to avoid the feeling of <em>"working all the time but money disappears"</em>.</li>
+                <p><span className="guide-num">1</span> Reports show where your money goes. Benefits:</p>
+                <ul className="guide-feat-list">
+                  <li>Spot <strong>unnecessary</strong> and <em>"impulse"</em> spending.</li>
+                  <li>Timely <strong>adjust spending</strong> for next months.</li>
                 </ul>
-                <p><span className="guide-num">2</span> <strong>Bonus:</strong></p>
-                <ul>
-                  <li>You can also view the Report <strong>by year</strong> — this is extremely important since the annual total can be far larger than you imagine.</li>
-                  <li>Based on monthly spending, you can estimate how much you need for an <strong>"Emergency Fund"</strong> covering 4–6 months.</li>
-                </ul>
+                <p><span className="guide-num">2</span> <strong>Bonus:</strong> View <strong>yearly report</strong> — the annual total may surprise you. Use it to estimate a 4–6 month <strong>"Emergency Fund"</strong>.</p>
               </>
             )}
           </div>
         </div>
       </div>
 
-      {/* Quản lý danh mục */}
-      <div className="guide-item">
-        <div className="guide-item__label guide-item__label--green">
+      {/* Feature 2: Categories */}
+      <div className="guide-howto-item">
+        <div className="guide-howto-label">
           {isVi ? 'Quản lý Danh mục' : 'Category Management'}
         </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp6} alt="Categories" className="guide-item__img" />
+        <div className="guide-howto-body">
+          <div className="guide-howto-img">
+            <img src={comp6} alt="Categories" className="guide-img" />
           </div>
-          <div className="guide-item__text">
+          <div className="guide-howto-text">
             {isVi ? (
               <>
-                <p><span className="guide-num">1</span> Bạn có biết vì sao ví tiền của mình cứ đến cuối tháng là lại <em>"cạn kiệt"</em> mà bạn hoàn toàn không biết lý do tiền đi đâu mất? Đó là vì những khoản chi <em>"lặt vặt"</em> hàng ngày—từ ly cà phê sáng, bữa ăn vặt, đến vài lần sale nhỏ—đã âm thầm <em>"bào mòn"</em> tài khoản mà bạn không hề hay biết!</p>
-                <p><span className="guide-num">2</span> Tính năng <strong>Quản lý Danh mục</strong> giúp bạn giải quyết triệt để vấn đề này:</p>
-                <ul>
-                  <li><em>"Gọi tên"</em> chính xác các khoản thu - chi. Giúp bạn tự do thêm, sửa hoặc xóa danh mục phù hợp với thói quen chi tiêu thực tế của mình.</li>
-                  <li>Khi mọi khoản chi đều có <strong>nhãn danh mục</strong>, Báo cáo sẽ vẽ ra bức tranh tài chính rõ nét, giúp bạn biết chính xác tiền đi đâu.</li>
+                <p><span className="guide-num">1</span> Biết vì sao ví cứ <em>"cạn kiệt"</em> cuối tháng mà không rõ lý do? Những khoản chi <em>"lặt vặt"</em> hàng ngày đang âm thầm bào mòn tài khoản bạn!</p>
+                <p><span className="guide-num">2</span> <strong>Quản lý Danh mục</strong> giúp bạn:</p>
+                <ul className="guide-feat-list">
+                  <li><em>"Gọi tên"</em> chính xác từng khoản thu - chi theo thói quen thực tế.</li>
+                  <li>Mỗi giao dịch có <strong>nhãn danh mục</strong> → Báo cáo rõ ràng, biết tiền đi đâu.</li>
                 </ul>
               </>
             ) : (
               <>
-                <p><span className="guide-num">1</span> Do you know why your wallet is always <em>"empty"</em> at month's end with no idea where the money went? It's because small daily expenses—morning coffee, snacks, small sales—quietly <em>"erode"</em> your account without you realizing it!</p>
-                <p><span className="guide-num">2</span> <strong>Category Management</strong> solves this completely:</p>
-                <ul>
-                  <li>Precisely <em>"name"</em> every income and expense. Freely add, edit, or delete categories to match your real spending habits.</li>
-                  <li>When every transaction has a <strong>category label</strong>, the Report paints a clear financial picture so you know exactly where money goes.</li>
+                <p><span className="guide-num">1</span> Wonder why your wallet is always <em>empty</em> at month-end? Small daily expenses quietly drain your account!</p>
+                <p><span className="guide-num">2</span> <strong>Category Management</strong>:</p>
+                <ul className="guide-feat-list">
+                  <li>Precisely <em>"name"</em> every income and expense.</li>
+                  <li>Every transaction gets a <strong>category label</strong> → clearer reports.</li>
                 </ul>
               </>
             )}
@@ -275,34 +237,34 @@ export default function UserGuide() {
         </div>
       </div>
 
-      {/* Đặt hạn mức */}
-      <div className="guide-item">
-        <div className="guide-item__label guide-item__label--green">
+      {/* Feature 3: Budget */}
+      <div className="guide-howto-item">
+        <div className="guide-howto-label">
           {isVi ? 'Đặt Hạn mức chi tiêu' : 'Set Spending Limits'}
         </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp7} alt="Budget" className="guide-item__img" />
+        <div className="guide-howto-body">
+          <div className="guide-howto-img">
+            <img src={comp7} alt="Budget" className="guide-img" />
           </div>
-          <div className="guide-item__text">
+          <div className="guide-howto-text">
             {isVi ? (
               <>
-                <p><span className="guide-num">1</span> Biết tiền đi đâu thôi là chưa đủ — bạn cần phải <strong>kiểm soát</strong> nó. <strong>Đặt hạn mức</strong> cho phép bạn gán ngân sách tối đa cho từng danh mục chi tiêu trong một khoảng thời gian cụ thể.</p>
+                <p><span className="guide-num">1</span> Biết tiền đi đâu thôi chưa đủ — bạn cần <strong>kiểm soát</strong> nó. <strong>Đặt hạn mức</strong> gán ngân sách tối đa cho từng danh mục trong khoảng thời gian cụ thể.</p>
                 <p><span className="guide-num">2</span> Lợi ích thực tế:</p>
-                <ul>
-                  <li>Khi ghi nhận một khoản chi vượt hạn mức, ứng dụng sẽ <strong>cảnh báo</strong> ngay để bạn kịp điều chỉnh.</li>
-                  <li>Buộc bạn phải suy nghĩ trước khi chi — đây chính là bước đệm để hình thành <em>thói quen chi tiêu có ý thức</em>.</li>
-                  <li>Đặt hạn mức <strong>thực tế</strong> (không quá thấp) để dễ duy trì và tạo cảm giác đạt được mục tiêu.</li>
+                <ul className="guide-feat-list">
+                  <li>Ứng dụng <strong>cảnh báo</strong> khi chi vượt hạn mức để kịp điều chỉnh.</li>
+                  <li>Buộc suy nghĩ trước khi chi → hình thành <em>thói quen chi tiêu có ý thức</em>.</li>
+                  <li>Đặt hạn mức <strong>thực tế</strong> (không quá thấp) để dễ duy trì.</li>
                 </ul>
               </>
             ) : (
               <>
-                <p><span className="guide-num">1</span> Knowing where money goes isn't enough — you need to <strong>control</strong> it. <strong>Set Budget</strong> lets you assign a maximum budget per spending category within a specific time period.</p>
-                <p><span className="guide-num">2</span> Practical benefits:</p>
-                <ul>
-                  <li>When you log an expense that exceeds the limit, the app <strong>warns</strong> you immediately so you can adjust.</li>
-                  <li>It forces you to think before spending — this is the key step toward building <em>mindful spending habits</em>.</li>
-                  <li>Set <strong>realistic</strong> limits (not too low) to maintain them easily and feel the satisfaction of hitting your goals.</li>
+                <p><span className="guide-num">1</span> Knowing where money goes isn't enough — you need to <strong>control</strong> it. Assign a max budget per category within a time period.</p>
+                <p><span className="guide-num">2</span> Benefits:</p>
+                <ul className="guide-feat-list">
+                  <li>App <strong>warns</strong> you when an expense exceeds the limit.</li>
+                  <li>Forces thinking before spending → builds <em>mindful habits</em>.</li>
+                  <li>Set <strong>realistic</strong> limits for sustainable progress.</li>
                 </ul>
               </>
             )}
@@ -310,38 +272,36 @@ export default function UserGuide() {
         </div>
       </div>
 
-      {/* Chi phí định kì */}
-      <div className="guide-item">
-        <div className="guide-item__label guide-item__label--green">
+      {/* Feature 4: Recurring */}
+      <div className="guide-howto-item">
+        <div className="guide-howto-label">
           {isVi ? 'Tự động thêm Chi phí cố định' : 'Auto-add Recurring Expenses'}
         </div>
-        <div className="guide-item__body">
-          <div className="guide-item__img-wrap">
-            <img src={comp8} alt="Recurring" className="guide-item__img" />
+        <div className="guide-howto-body">
+          <div className="guide-howto-img">
+            <img src={comp8} alt="Recurring" className="guide-img" />
           </div>
-          <div className="guide-item__text">
+          <div className="guide-howto-text">
             {isVi ? (
               <>
-                <p><span className="guide-num">1</span> Bạn có bao giờ đang dùng dịch vụ thì bỗng dưng bị <em>"ngắt"</em> vì quên đóng các khoản cố định như Tiền Wifi, Gói cước điện thoại, Tiền nhà... hay tệ hơn là bận đến mức quên hạn nộp tiền?</p>
-                <p><span className="guide-num">2</span> Tính năng này không chỉ <strong>thêm tự động</strong> mà còn <strong>nhắc nhở</strong> bạn chi tiêu đúng hạn. Tránh việc gián đoạn dịch vụ và giữ uy tín với các bên cho thuê hay cung cấp dịch vụ.</p>
-                <p><span className="guide-num">3</span> Ngoài ra, còn giúp bạn nhận biết khoản nào <strong>thực sự cần thiết</strong>. Ví dụ: đang đăng ký Netflix để học nhưng thực tế chỉ xem vài lần một tháng — điều này cần được nhận diện để kịp thời thay đổi.</p>
-                <p><span className="guide-num">4</span> <strong>Mẹo:</strong> Thiết lập sớm hơn hạn thực tế 1–2 ngày. Ví dụ: nếu phải đóng tiền mạng ngày 20, hãy đặt là ngày 18 hoặc 19 — khi khoản chi được thêm vào sẽ nhắc bạn cần đóng sớm.</p>
+                <p><span className="guide-num">1</span> Bạn có bao giờ bị <em>"ngắt"</em> dịch vụ vì quên đóng Wifi, điện thoại, tiền nhà... hay bận đến quên hạn nộp tiền?</p>
+                <p><span className="guide-num">2</span> Tính năng này <strong>thêm tự động</strong> và <strong>nhắc nhở</strong> bạn đúng hạn. Tránh gián đoạn dịch vụ và giữ uy tín.</p>
+                <p><span className="guide-num">3</span> Còn giúp nhận biết khoản nào <strong>thực sự cần thiết</strong> (ví dụ: đăng ký Netflix nhưng ít dùng — cần nhận diện để thay đổi).</p>
+                <p><span className="guide-num">4</span> <strong>Mẹo:</strong> Đặt sớm hơn 1–2 ngày so với hạn thực tế để nhắc nhở kịp thời.</p>
               </>
             ) : (
               <>
-                <p><span className="guide-num">1</span> Have you ever been <em>cut off</em> from a service because you forgot to pay recurring fees like WiFi, phone plans, or rent? Or been too busy and missed the payment deadline?</p>
-                <p><span className="guide-num">2</span> This feature not only <strong>adds expenses automatically</strong> but also <strong>reminds</strong> you to pay on time. Avoid service interruptions and maintain trust with landlords and service providers.</p>
-                <p><span className="guide-num">3</span> It also helps you identify which subscriptions are <strong>truly necessary</strong>. For example: signing up for Netflix "to study" but only watching a few times a month — this should be identified and changed.</p>
-                <p><span className="guide-num">4</span> <strong>Tip:</strong> Set the date 1–2 days before the actual deadline. For example: if you need to pay on the 20th, set it to the 18th or 19th — when the expense is added, it reminds you to pay early.</p>
+                <p><span className="guide-num">1</span> Ever been <em>cut off</em> from WiFi, phone or rent due to forgotten payments?</p>
+                <p><span className="guide-num">2</span> This feature <strong>auto-adds</strong> and <strong>reminds</strong> you on time. No more service interruptions.</p>
+                <p><span className="guide-num">3</span> Helps identify which subscriptions are <strong>truly necessary</strong>.</p>
+                <p><span className="guide-num">4</span> <strong>Tip:</strong> Set the date 1–2 days before the actual deadline as an early reminder.</p>
               </>
             )}
           </div>
         </div>
       </div>
 
-      </div>{/* end guide-content-block how-to */}
-
-      {/* Footer note */}
+      {/* Footer */}
       <div className="guide-footer">
         <p>{isVi ? '🎯 Chúc bạn quản lý tài chính hiệu quả với SpendTracking!' : '🎯 Happy tracking with SpendTracking!'}</p>
       </div>
